@@ -16,7 +16,7 @@ let haskellStuff = with pkgs;
             git
             curl
         ];
-    all = haskellStuff ++tools;
+    all = haskellStuff ++ tools;
 
 
 in pkgs.mkShell {
