@@ -1,0 +1,4 @@
+cradle:
+  cabal:
+    - path: "app/Main.hs"
+      component: "hell:exe:hell"
