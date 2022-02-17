@@ -10,6 +10,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.IO as TIO
 import System.Environment (getArgs)
+import Control.Monad (join)
 
 data Command = Search Text | Persist Text | DumpBuffer | Help deriving stock (Eq, Show)
 
@@ -45,7 +46,7 @@ parseCmd (c:l) = case c of
 parseCmd _ = Help
 
 readFilesAsLines :: [FilePath] -> IO [Text]
-readFilesAsLines = traverse (fmap (T.intercalate " ") . readFileAsLines)
+readFilesAsLines l = join <$> traverse readFileAsLines l
 
 readFileAsLines :: FilePath -> IO [Text]
 readFileAsLines = fmap T.lines . TIO.readFile
