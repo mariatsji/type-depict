@@ -21,15 +21,16 @@ main :: IO ()
 main = do
     print "h(askell) (sh)ell"
     args <- getArgs
-    lines <- readFilesAsLines [snippets, "/Users/sjurmillidahl/.zsh_history", "/Users/sjurmillidahl/.bash_history"]
-    let buffer = Buffer.fromList (keyalize <$> lines)
-    case parseCmd (fold args) of
+    snippetlines <- readFileAsLines snippets
+    shelllines <- readFilesAsLines ["/Users/sjurmillidahl/.zsh_history", "/Users/sjurmillidahl/.bash_history"]
+    let buffer = Buffer.fromList (keyalize <$> shelllines <> snippetlines)
+    case parseCmd args of
         DumpBuffer ->
             traverse_ print (Buffer.dump buffer)
         Search t ->
-            traverse_ print (Buffer.get t buffer)
+            traverse_ (\v -> print (t <> " " <> v)) (Buffer.get t buffer)
         Persist t -> do
-            TIO.writeFile snippets (T.intercalate "" (t : lines))
+            TIO.writeFile snippets (T.unlines (t : snippetlines))
             print $ "stored [" <> t <> "]"
         Help -> do
             print "usage:"
@@ -37,13 +38,16 @@ main = do
             print "search: `hell s searchword"
             print "dump: `hell d`"
 
-parseCmd :: String -> Command
+parseCmd :: [String] -> Command
+parseCmd [] = Help
 parseCmd (c:l) = case c of
-    'p' -> Persist (T.strip $ T.pack l)
-    's' -> Search (T.strip $ T.pack l)
-    'd' -> DumpBuffer
+    "p" -> Persist (mkLine l)
+    "s" -> Search (mkLine l)
+    "d" -> DumpBuffer
     _ -> Help
-parseCmd _ = Help
+
+mkLine :: [String] -> Text
+mkLine s = T.strip . T.intercalate " " $ T.pack <$> s 
 
 readFilesAsLines :: [FilePath] -> IO [Text]
 readFilesAsLines l = join <$> traverse readFileAsLines l
