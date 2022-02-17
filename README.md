@@ -20,3 +20,17 @@ vscode + nix-environment selector plugin
 
     nix-build release.nix
 
+## use
+
+put this in your .zshrc
+
+    STACKLOCALS=~/.local/bin
+    CABALLOCALS=~/.cabal/bin
+    export PATH=$PATH:$STACKLOCALS:$CABALLOCALS
+
+    alias docker='podman'
+
+    alias s='hell s'
+    alias d='hell d'
+    alias p='hell p'
+
