@@ -1,6 +1,4 @@
-{-# LANGUAGE DerivingStrategies #-}
-
-module Buffer (Buffer (..), empty, insert, get) where
+module Buffer (Buffer (..), empty, fromList, get, dump) where
 
 import Data.MultiMap (MultiMap)
 import qualified Data.MultiMap as MM
@@ -11,8 +9,11 @@ newtype Buffer = Buffer {unBuffer :: MultiMap Text Text}
 empty :: Buffer
 empty = Buffer MM.empty
 
-insert :: (Text, [Text]) -> Buffer -> Buffer
-insert (k, ks) (Buffer mm) = Buffer (foldr (MM.insert k) MM.empty ks)
+fromList :: [(Text, Text)] -> Buffer
+fromList keyvals = Buffer (MM.fromList keyvals)
 
 get :: Text -> Buffer -> [Text]
 get k (Buffer mm) = MM.lookup k mm
+
+dump :: Buffer -> [(Text, Text)]
+dump (Buffer mm) = MM.toList mm

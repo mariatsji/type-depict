@@ -1,4 +1,10 @@
 cradle:
   cabal:
+    - path: "src"
+      component: "lib:hell"
+
     - path: "app/Main.hs"
       component: "hell:exe:hell"
+
+    - path: "test"
+      component: "hell:test:hell-test"
