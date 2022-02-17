@@ -25,9 +25,9 @@ main = do
     let buffer = Buffer.fromList (keyalize <$> lines)
     case parseCmd (fold args) of
         DumpBuffer ->
-            traverse_ println (Buffer.dump buffer)
+            traverse_ print (Buffer.dump buffer)
         Search t ->
-            traverse_ println (Buffer.get t buffer)
+            traverse_ print (Buffer.get t buffer)
         Persist t -> do
             TIO.writeFile snippets (T.intercalate "" (t : lines))
             print $ "stored [" <> t <> "]"
@@ -55,8 +55,3 @@ keyalize :: Text -> (Text, Text)
 keyalize t = case T.words t of
     [] -> ("", "")
     w : ws -> (w, T.intercalate " " ws)
-
-println :: Show a => a -> IO ()
-println t = do
-    print t
-    print "\n"
