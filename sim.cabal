@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               hell
+name:               sim
 version:            0.1.0.0
 
 -- A short (one-line) description of the package.
@@ -28,33 +28,34 @@ library
     build-depends:
         base ^>=4.14.3.0,
         attoparsec,
+        conduit,
         containers,
         multimap ^>=1.2.1,
+        stm,
         text
     exposed-modules:
-        Parser
-        Buffer
+        Vis
+        
 
-executable hell
+executable sim
     main-is:          Main.hs
     ghc-options:     -O2 -rtsopts -threaded -with-rtsopts=-K1K -rtsopts "-with-rtsopts=-N2 -T"
     build-depends:
         base ^>=4.14.3.0,
-        hell,
+        sim,
         text
     hs-source-dirs:   app
     default-language: Haskell2010
 
-Test-Suite hell-test
+Test-Suite sim-test
     type:       exitcode-stdio-1.0
     main-is:    Spec.hs
     ghc-options:     -O2 -rtsopts -threaded -with-rtsopts=-K1K -rtsopts "-with-rtsopts=-N2 -T"
     hs-source-dirs: test
     build-depends:
-        hell,
+        sim,
         base ^>=4.14.3.0,
         hspec,
         text
     other-modules:
-        ParserSpec
     default-language: Haskell2010

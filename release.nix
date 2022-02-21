@@ -1,7 +1,7 @@
 let pkgs = import ./nixpkgs.nix;
-    hell = pkgs.haskellPackages.callCabal2nix "hell" ./. {};
+    sim = pkgs.haskellPackages.callCabal2nix "sim" ./. {};
 
-in pkgs.haskell.lib.overrideCabal hell (old: {
+in pkgs.haskell.lib.overrideCabal sim (old: {
   enableSharedExecutables = false;
   enableSharedLibraries = false;
   configureFlags = [ ];
