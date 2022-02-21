@@ -1,7 +1,7 @@
 let pkgs = import ./nixpkgs.nix;
-    sim = pkgs.haskellPackages.callCabal2nix "sim" ./. {};
+    hev = pkgs.haskellPackages.callCabal2nix "expression-visualizer" ./. {};
 
-in pkgs.haskell.lib.overrideCabal sim (old: {
+in pkgs.haskell.lib.overrideCabal hev (old: {
   enableSharedExecutables = false;
   enableSharedLibraries = false;
   configureFlags = [ ];

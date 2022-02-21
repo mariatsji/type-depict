@@ -1,4 +1,4 @@
-# Revision history for sim
+# Revision history for expression-visualizer
 
 ## 0.1.0.0 -- YYYY-mm-dd
 

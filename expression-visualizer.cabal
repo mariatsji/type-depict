@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               sim
+name:               expression-visualizer
 version:            0.1.0.0
 
 -- A short (one-line) description of the package.
@@ -14,7 +14,7 @@ version:            0.1.0.0
 -- The license under which the package is released.
 -- license:
 author:             Sjur Millidahl
-maintainer:         smillida@cisco.com
+maintainer:         sjur.millidahl@gmail.com
 
 -- A copyright notice.
 -- copyright:
@@ -28,32 +28,28 @@ library
     build-depends:
         base ^>=4.14.3.0,
         attoparsec,
-        conduit,
-        containers,
-        multimap ^>=1.2.1,
-        stm,
         text
     exposed-modules:
         Vis
         
 
-executable sim
+executable expression-visualizer
     main-is:          Main.hs
     ghc-options:     -O2 -rtsopts -threaded -with-rtsopts=-K1K -rtsopts "-with-rtsopts=-N2 -T"
     build-depends:
         base ^>=4.14.3.0,
-        sim,
+        expression-visualizer,
         text
     hs-source-dirs:   app
     default-language: Haskell2010
 
-Test-Suite sim-test
+Test-Suite expression-visualizer-test
     type:       exitcode-stdio-1.0
     main-is:    Spec.hs
     ghc-options:     -O2 -rtsopts -threaded -with-rtsopts=-K1K -rtsopts "-with-rtsopts=-N2 -T"
     hs-source-dirs: test
     build-depends:
-        sim,
+        expression-visualizer,
         base ^>=4.14.3.0,
         hspec,
         text
