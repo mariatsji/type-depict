@@ -15,7 +15,7 @@ data Visual
     | Connect Visual Visual
     | Embellish Visual
     | Group Visual
-    | Dot
+    | Dot String
     deriving stock (Eq)
 
 instance Show Visual where
@@ -27,9 +27,6 @@ parse = A.parseOnly visParser
 visParser :: Parser Visual
 visParser = fixParser <|> connectParser <|> embellishParser <|> groupParser <|> dotParser <?> "no Visualization"
 
--- todo parseOnly fixParser  "a -> b -> c" 
--- Right @.
--- Dot needs actual token
 fixParser :: Parser Visual
 fixParser = do
     c <- A.try connectParser
@@ -69,23 +66,14 @@ groupParser =
     groupable = connectParser <|> embellishParser <|> dotParser
 
 dotParser :: Parser Visual
-dotParser = Dot <$ A.letter <?> "no dot"
+dotParser = do
+    w <- A.many1 A.letter
+    pure $ Dot w
 
 render :: Visual -> Text
 render = \case
-    Dot -> "."
+    Dot _ -> "."
     Connect a b -> render a <> "--" <> render b
     Embellish a -> "(" <> render a <> ")"
     Fix a -> "@" <> render a
     Group a -> "{" <> render a <> "}"
-
--- (a -> a) -> a
-fixV :: Visual
-fixV = Connect (Group (Fix Dot)) Dot
-
--- m a -> (a -> m b) -> m b
-bindV :: Visual
-bindV = Connect (Connect (Embellish Dot) (Group (Connect Dot (Embellish Dot)))) (Embellish Dot)
-
--- f a -> f a
-foreverV = Fix . Embellish
