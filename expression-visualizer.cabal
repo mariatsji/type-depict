@@ -30,7 +30,7 @@ library
         attoparsec,
         text
     exposed-modules:
-        Vis
+        Visual
         
 
 executable expression-visualizer
@@ -46,7 +46,7 @@ executable expression-visualizer
 Test-Suite expression-visualizer-test
     type:       exitcode-stdio-1.0
     main-is:    Spec.hs
-    ghc-options:     -O2 -rtsopts -threaded -with-rtsopts=-K1K -rtsopts "-with-rtsopts=-N2 -T"
+    ghc-options: -O2 -fwarn-incomplete-patterns -fwarn-redundant-constraints -fwarn-unused-imports -fwarn-unused-packages
     hs-source-dirs: test
     build-depends:
         expression-visualizer,
@@ -54,4 +54,5 @@ Test-Suite expression-visualizer-test
         hspec,
         text
     other-modules:
+        VisualSpec
     default-language: Haskell2010
