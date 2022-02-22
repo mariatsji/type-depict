@@ -25,14 +25,20 @@ parse :: Text -> Either String Visual
 parse = A.parseOnly visParser
 
 visParser :: Parser Visual
-visParser = fixParser <|> embellishParser <|> groupParser <|> dotParser <|> connectParser <?> "no Visualization"
+visParser = fixParser <|> connectParser <|> embellishParser <|> groupParser <|> dotParser <?> "no Visualization"
 
+-- todo parseOnly fixParser  "a -> b -> c" 
+-- Right @.
+-- Dot needs actual token
 fixParser :: Parser Visual
 fixParser = do
-    c <- A.letter
-    _ <- A.space >> A.string "->" >> A.space >> A.char c
-    pure (Fix Dot) <?> "no fix"
+    c <- A.try connectParser
+    case c of
+        (Connect a b) -> if a == b then pure (Fix a) else fail ""
+        _ -> fail ""
 
+-- todo parseOnly connectParser "a -> b -> c"
+-- Right .--.
 connectParser :: Parser Visual
 connectParser = do
     a <- A.try connectableA
