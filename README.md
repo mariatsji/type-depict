@@ -1,1 +1,1 @@
-# Haskell Expression Visualizer
+# Haskell Signature Visualizer

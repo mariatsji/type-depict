@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               expression-visualizer
+name:               signature-visualizer
 version:            0.1.0.0
 
 -- A short (one-line) description of the package.
@@ -33,23 +33,23 @@ library
         Visual
         
 
-executable expression-visualizer
+executable signature-visualizer
     main-is:          Main.hs
     ghc-options:     -O2 -rtsopts -threaded -with-rtsopts=-K1K -rtsopts "-with-rtsopts=-N2 -T"
     build-depends:
         base ^>=4.14.3.0,
-        expression-visualizer,
+        signature-visualizer,
         text
     hs-source-dirs:   app
     default-language: Haskell2010
 
-Test-Suite expression-visualizer-test
+Test-Suite signature-visualizer-test
     type:       exitcode-stdio-1.0
     main-is:    Spec.hs
     ghc-options: -O2 -fwarn-incomplete-patterns -fwarn-redundant-constraints -fwarn-unused-imports -fwarn-unused-packages
     hs-source-dirs: test
     build-depends:
-        expression-visualizer,
+        signature-visualizer,
         base ^>=4.14.3.0,
         hspec
     other-modules:
