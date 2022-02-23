@@ -24,11 +24,15 @@ instance Show Visual where
 parse :: Text -> Either String Visual
 parse = A.parseOnly visParser
 
--- todo
--- Visual.parse "(a -> f b) -> t a -> f (t b)"
--- Left "no Visualization > letter: Failed reading: satisfy"
+-- todo constraints
 visParser :: Parser Visual
-visParser = fixParser <|> connectParser <|> embellishParser <|> groupParser <|> dotParser <?> "no Visualization"
+visParser = forallParser *> (fixParser <|> connectParser <|> embellishParser <|> groupParser <|> dotParser)
+  where
+    forallParser = A.many' $ do
+        _ <- A.string "forall" *> A.space
+        _ <- A.takeWhile (/= '.')
+        _ <- A.char '.' *> A.many' A.space
+        pure ()
 
 fixParser :: Parser Visual
 fixParser = do
