@@ -24,6 +24,9 @@ instance Show Visual where
 parse :: Text -> Either String Visual
 parse = A.parseOnly visParser
 
+-- todo
+-- Visual.parse "(a -> f b) -> t a -> f (t b)"
+-- Left "no Visualization > letter: Failed reading: satisfy"
 visParser :: Parser Visual
 visParser = fixParser <|> connectParser <|> embellishParser <|> groupParser <|> dotParser <?> "no Visualization"
 
@@ -31,11 +34,9 @@ fixParser :: Parser Visual
 fixParser = do
     c <- A.try connectParser
     case c of
-        (Connect a b) -> if a == b then pure (Fix a) else fail ""
+        (Connect (Group (Connect a b)) c) -> if b == c then pure (Fix a) else fail ""
         _ -> fail ""
 
--- todo parseOnly connectParser "a -> b -> c"
--- Right .--.
 connectParser :: Parser Visual
 connectParser = do
     a <- A.try connectableA
@@ -44,7 +45,7 @@ connectParser = do
     pure $ Connect a b
   where
     connectableA = groupParser <|> embellishParser <|> dotParser
-    connectableB = connectableA <|> connectParser
+    connectableB = connectParser <|> connectableA
 
 embellishParser :: Parser Visual
 embellishParser = Embellish <$> (embellish4 <|> embellish3 <|> embellish2 <|> embellish1) <?> "no embellish"
@@ -58,9 +59,9 @@ embellishParser = Embellish <$> (embellish4 <|> embellish3 <|> embellish2 <|> em
 groupParser :: Parser Visual
 groupParser =
     Group <$> do
-        _ <- A.char '(' *> A.space
+        _ <- A.char '(' *> A.many' A.space
         x <- groupable
-        _ <- A.space <* A.char ')'
+        _ <- A.many' A.space <* A.char ')'
         pure x
   where
     groupable = connectParser <|> embellishParser <|> dotParser
