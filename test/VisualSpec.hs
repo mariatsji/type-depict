@@ -42,3 +42,5 @@ spec = describe "Parser" $ do
         fmap Visual.render (Visual.parse "(a,b)") `shouldBe` Right "(.)"
     it "understands a complicated tuple (a,(a,(c,d)))"  $ do
         fmap Visual.render (Visual.parse "(a,(a,(c,d)))") `shouldBe` Right "(((.)))"
+    it "understands a tuple with a connectable (a, f -> (m [a]))" $ do
+        fmap Visual.render (Visual.parse "(a, f -> (m [a]))") `shouldBe` Right "(.--{((.))})"

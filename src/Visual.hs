@@ -95,10 +95,9 @@ tupleParser :: Parser Visual
 tupleParser =
     Embellish
         <$> ( A.skipSpace
-                *> A.char '('
-                *> A.many1 (A.letter <|> A.space)
-                *> A.char ','
-                *> tupable <* A.char ')'
+                *> A.char '(' *> A.skipSpace
+                *> A.many1 (tupable *> A.skipSpace *> A.char ',') *> A.skipSpace
+                *> tupable <* A.skipSpace <* A.char ')' <* A.skipSpace
             )
   where
     tupable = connectParser <|> embellishParser <|> tupleParser <|> listParser <|> dotParser
