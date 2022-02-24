@@ -22,17 +22,26 @@ instance Show Visual where
     show = T.unpack . render
 
 parse :: Text -> Either String Visual
-parse = A.parseOnly visParser
+parse = A.parseOnly visParser . strip
 
 -- todo constraints
 visParser :: Parser Visual
-visParser = forallParser *> (fixParser <|> connectParser <|> embellishParser <|> groupParser <|> dotParser)
+visParser = fixParser <|> connectParser <|> embellishParser <|> groupParser <|> dotParser
+
+strip :: Text -> Text
+strip t =
+    if T.null t
+        then t
+        else T.strip $ dropForall (dropConstraints t)
   where
-    forallParser = A.many' $ do
-        _ <- A.string "forall" *> A.space
-        _ <- A.takeWhile (/= '.')
-        _ <- A.char '.' *> A.many' A.space
-        pure ()
+    dropConstraints t' = case T.splitOn "." t' of
+        [x] -> x
+        (_ : ts) -> T.intercalate "" ts
+        [] -> t'
+    dropForall t' = case T.splitOn "=>" t' of
+        [x] -> x
+        (_ : ts) -> T.intercalate "" ts
+        _ -> t'
 
 fixParser :: Parser Visual
 fixParser = do
