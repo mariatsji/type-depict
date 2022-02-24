@@ -26,7 +26,7 @@ parse = A.parseOnly visParser . strip
 
 -- todo constraints
 visParser :: Parser Visual
-visParser = fixParser <|> connectParser <|> embellishParser <|> groupParser <|> dotParser
+visParser = fixParser <|> connectParser <|> embellishParser <|> groupParser <|> dotParser <|> listParser
 
 strip :: Text -> Text
 strip t =
@@ -58,7 +58,7 @@ connectParser = do
     b <- connectableB
     pure $ Connect a b
   where
-    connectableA = groupParser <|> embellishParser <|> dotParser
+    connectableA = groupParser <|> embellishParser <|> dotParser <|> listParser 
     connectableB = connectParser <|> connectableA
 
 embellishParser :: Parser Visual
@@ -68,7 +68,16 @@ embellishParser = Embellish <$> (embellish4 <|> embellish3 <|> embellish2 <|> em
     embellish2 = word >> A.space >> word >> A.space >> embellishable
     embellish3 = word >> A.space >> word >> A.space >> word >> A.space >> embellishable
     embellish4 = word >> A.space >> word >> A.space >> word >> A.space >> word >> A.space >> embellishable
-    embellishable = groupParser <|> dotParser <|> connectParser
+    embellishable = groupParser <|> dotParser <|> connectParser <|> listParser
+
+listParser :: Parser Visual
+listParser = Embellish <$> do
+        _ <- A.char '[' *> A.many' A.space
+        x <- listable
+        _ <- A.many' A.space <* A.char ']'
+        pure x
+  where
+    listable = connectParser <|> embellishParser <|> dotParser <|> groupParser 
 
 word :: Parser String
 word = A.many1 A.letter
@@ -81,7 +90,7 @@ groupParser =
         _ <- A.many' A.space <* A.char ')'
         pure x
   where
-    groupable = connectParser <|> embellishParser <|> dotParser
+    groupable = connectParser <|> embellishParser <|> dotParser <|> listParser
 
 dotParser :: Parser Visual
 dotParser = Dot <$> word

@@ -32,3 +32,9 @@ spec = describe "Parser" $ do
         Visual.parse "String -> String" `shouldBe` Right (Connect (Dot "String") (Dot "String"))
     it "understand e.g. non-polymorphic Either functions either :: (String -> Text) -> (Int -> Float) -> Either String Int -> Text" $ do
         fmap Visual.render (Visual.parse "either :: (String -> Text) -> (Int -> Float) -> Either String Int -> Text") `shouldBe` Right "{.--.}--{.--.}--(.)--."
+    it "understand lists as embellishments" $ do
+        Visual.parse "[a]" `shouldBe` Right (Embellish (Dot "a"))
+    it "understands applicative" $ do
+        fmap Visual.render (Visual.parse "f ( a -> b ) -> f a -> f b") `shouldBe` Right "({.--.})--(.)--(.)"
+    it "understand complicated list embellishments" $ do
+        fmap Visual.render (Visual.parse "[(a -> b)] -> [a] -> [b]") `shouldBe` Right "({.--.})--(.)--(.)"
