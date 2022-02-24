@@ -38,3 +38,5 @@ spec = describe "Parser" $ do
         fmap Visual.render (Visual.parse "f ( a -> b ) -> f a -> f b") `shouldBe` Right "({.--.})--(.)--(.)"
     it "understand complicated list embellishments" $ do
         fmap Visual.render (Visual.parse "[(a -> b)] -> [a] -> [b]") `shouldBe` Right "({.--.})--(.)--(.)"
+    it "understands a simple tuple" $ do
+        fmap Visual.render (Visual.parse "(a,b)") `shouldBe` Right "(.)"

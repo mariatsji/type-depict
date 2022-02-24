@@ -18,6 +18,14 @@ data Visual
     | Dot String
     deriving stock (Eq)
 
+render :: Visual -> Text
+render = \case
+    Dot _ -> "."
+    Connect a b -> render a <> "--" <> render b
+    Embellish a -> "(" <> render a <> ")"
+    Fix a -> "@" <> render a
+    Group a -> "{" <> render a <> "}"
+
 instance Show Visual where
     show = T.unpack . render
 
@@ -77,11 +85,12 @@ listParser = Embellish <$> do
         _ <- A.many' A.space <* A.char ']'
         pure x
   where
-    listable = connectParser <|> embellishParser <|> dotParser <|> groupParser 
+    listable = connectParser <|> embellishParser <|> dotParser <|> groupParser
 
 word :: Parser String
 word = A.many1 A.letter
 
+-- should fail on tuples!
 groupParser :: Parser Visual
 groupParser =
     Group <$> do
@@ -94,11 +103,3 @@ groupParser =
 
 dotParser :: Parser Visual
 dotParser = Dot <$> word
-
-render :: Visual -> Text
-render = \case
-    Dot _ -> "."
-    Connect a b -> render a <> "--" <> render b
-    Embellish a -> "(" <> render a <> ")"
-    Fix a -> "@" <> render a
-    Group a -> "{" <> render a <> "}"
