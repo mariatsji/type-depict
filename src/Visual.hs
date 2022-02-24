@@ -32,16 +32,17 @@ strip :: Text -> Text
 strip t =
     if T.null t
         then t
-        else T.strip $ dropForall (dropConstraints t)
+        else T.strip $ dropSignature $ dropForall $ dropConstraints t
   where
-    dropConstraints t' = case T.splitOn "." t' of
-        [x] -> x
-        (_ : ts) -> T.intercalate "" ts
-        [] -> t'
-    dropForall t' = case T.splitOn "=>" t' of
-        [x] -> x
-        (_ : ts) -> T.intercalate "" ts
-        _ -> t'
+    dropSignature t' = maybeOnlyAfter t' "::"
+    dropConstraints t' = maybeOnlyAfter t' "."
+    dropForall t' = maybeOnlyAfter t' "=>"
+
+maybeOnlyAfter :: Text -> Text -> Text
+maybeOnlyAfter t needle = case T.splitOn needle t of
+    [x] -> x
+    (_ : ts) -> T.intercalate "" ts
+    [] -> t
 
 fixParser :: Parser Visual
 fixParser = do

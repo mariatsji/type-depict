@@ -22,3 +22,7 @@ spec = describe "Parser" $ do
         Visual.parse "forall a b. a -> b" `shouldBe` Right (Connect (Dot "a") (Dot "b"))
     it "should tolerate forall and contraints in forall a b. Functor f => f a" $ do
         Visual.parse "forall a b. Functor f => f a" `shouldBe` Right (Embellish (Dot "a"))
+    it "should tolerate a function name in pure :: forall a b. Functor f => f a" $ do
+        Visual.parse "pure :: forall a b. Functor f => f a" `shouldBe` Right (Embellish (Dot "a"))
+    it "should tolerate only function name in f :: a" $ do
+        Visual.parse "f :: a" `shouldBe` Right (Dot "a")
