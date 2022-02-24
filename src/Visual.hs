@@ -66,7 +66,7 @@ connectParser = do
     b <- connectableB
     pure $ Connect a b
   where
-    connectableA = groupParser <|> embellishParser <|> dotParser <|> listParser 
+    connectableA = groupParser <|> embellishParser <|> dotParser <|> listParser
     connectableB = connectParser <|> connectableA
 
 embellishParser :: Parser Visual
@@ -79,7 +79,8 @@ embellishParser = Embellish <$> (embellish4 <|> embellish3 <|> embellish2 <|> em
     embellishable = groupParser <|> dotParser <|> connectParser <|> listParser
 
 listParser :: Parser Visual
-listParser = Embellish <$> do
+listParser =
+    Embellish <$> do
         _ <- A.char '[' *> A.many' A.space
         x <- listable
         _ <- A.many' A.space <* A.char ']'
@@ -90,7 +91,18 @@ listParser = Embellish <$> do
 word :: Parser String
 word = A.many1 A.letter
 
--- should fail on tuples!
+tupleParser :: Parser Visual
+tupleParser =
+    Embellish
+        <$> ( A.skipSpace
+                *> A.char '('
+                *> A.many1 (A.letter <|> A.space)
+                *> A.char ','
+                *> tupable <* A.char ')'
+            )
+  where
+    tupable = connectParser <|> embellishParser <|> tupleParser <|> listParser <|> dotParser
+
 groupParser :: Parser Visual
 groupParser =
     Group <$> do
