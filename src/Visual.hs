@@ -64,11 +64,14 @@ connectParser = do
 embellishParser :: Parser Visual
 embellishParser = Embellish <$> (embellish4 <|> embellish3 <|> embellish2 <|> embellish1) <?> "no embellish"
   where
-    embellish1 = A.letter >> A.space >> embellishable
-    embellish2 = A.letter >> A.space >> A.letter >> A.space >> embellishable
-    embellish3 = A.letter >> A.space >> A.letter >> A.space >> A.letter >> A.space >> embellishable
-    embellish4 = A.letter >> A.space >> A.letter >> A.space >> A.letter >> A.space >> A.letter >> A.space >> embellishable
+    embellish1 = word >> A.space >> embellishable
+    embellish2 = word >> A.space >> word >> A.space >> embellishable
+    embellish3 = word >> A.space >> word >> A.space >> word >> A.space >> embellishable
+    embellish4 = word >> A.space >> word >> A.space >> word >> A.space >> word >> A.space >> embellishable
     embellishable = groupParser <|> dotParser <|> connectParser
+
+word :: Parser String
+word = A.many1 A.letter
 
 groupParser :: Parser Visual
 groupParser =
@@ -81,9 +84,7 @@ groupParser =
     groupable = connectParser <|> embellishParser <|> dotParser
 
 dotParser :: Parser Visual
-dotParser = do
-    w <- A.many1 A.letter
-    pure $ Dot w
+dotParser = Dot <$> word
 
 render :: Visual -> Text
 render = \case

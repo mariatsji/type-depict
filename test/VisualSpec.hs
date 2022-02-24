@@ -26,3 +26,9 @@ spec = describe "Parser" $ do
         Visual.parse "pure :: forall a b. Functor f => f a" `shouldBe` Right (Embellish (Dot "a"))
     it "should tolerate only function name in f :: a" $ do
         Visual.parse "f :: a" `shouldBe` Right (Dot "a")
+    it "should accept non-polymorphic types  maybe :: Decoder a -> Decoder (Maybe a)" $ do
+        fmap Visual.render (Visual.parse "maybe :: Decoder a -> Decoder (Maybe a)") `shouldBe` Right "(.)--({(.)})"
+    it "should accept non-polymorphic types in e.g. String -> String" $ do
+        Visual.parse "String -> String" `shouldBe` Right (Connect (Dot "String") (Dot "String"))
+    it "understand e.g. non-polymorphic Either functions either :: (String -> Text) -> (Int -> Float) -> Either String Int -> Text" $ do
+        fmap Visual.render (Visual.parse "either :: (String -> Text) -> (Int -> Float) -> Either String Int -> Text") `shouldBe` Right "{.--.}--{.--.}--(.)--."
