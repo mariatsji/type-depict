@@ -28,9 +28,16 @@ library
     build-depends:
         base ^>=4.14.3.0,
         attoparsec,
+        svg-builder,
         text
     exposed-modules:
         Visual
+        Parser
+    default-extensions:
+        OverloadedStrings
+        LambdaCase
+        RecordWildCards
+        DerivingStrategies
         
 
 executable signature-visualizer
@@ -39,6 +46,7 @@ executable signature-visualizer
     build-depends:
         base ^>=4.14.3.0,
         signature-visualizer,
+        svg-builder,
         text
     hs-source-dirs:   app
     default-language: Haskell2010
