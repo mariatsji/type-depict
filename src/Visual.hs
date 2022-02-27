@@ -42,9 +42,9 @@ renderSvg box@Box{..} = \case
     Connect a b ->
         let boxA = Box{w = w / 2, h = h, x = x, y = y}
             boxB = Box{w = w / 2, h = h, x = w / 2, y = y}
-            path = path_ [D_ <<- centre boxA <> centre boxB, Fill_ <<- "black"]
+            path = path_ [D_ <<- centre mA boxA <> centre lA boxB, Stroke_ <<- "black"]
          in renderSvg boxA a <> path <> renderSvg boxB b
   where
-    centre :: Box -> Text
-    centre Box{..} = mA (x / 2) (y / 2)
+    centre :: (Float -> Float -> Text) -> Box -> Text
+    centre svgOp Box{..} = svgOp (x + (w / 2)) (y + (h / 2))
 

@@ -34,10 +34,11 @@ library
         Visual
         Parser
     default-extensions:
-        OverloadedStrings
-        LambdaCase
-        RecordWildCards
         DerivingStrategies
+        LambdaCase
+        OverloadedStrings
+        RankNTypes
+        RecordWildCards
         
 
 executable signature-visualizer
