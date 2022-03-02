@@ -9,8 +9,11 @@ import Visual
 
 main :: IO ()
 main = do
-    let visual = Embellish $ Connect (Embellish (Dot "a")) (Embellish (Dot "b"))
-        container = [Version_ <<- "1.1", Width_ <<- "600", Height_ <<- "300"]
+    let visual =
+            Connect
+                (Embellish $ Connect (Embellish (Dot "a")) (Embellish (Dot "b")))
+                (Group (Embellish $ Connect (Embellish (Dot "a")) (Embellish (Dot "b"))))
+        container = [Version_ <<- "1.1", Width_ <<- "600", Height_ <<- "600"]
         bubble = Bubble{cx = 300, cy = 150, r = 150}
         svg = doctype <> with (svg11_ (renderSvg bubble visual)) container
     renderToFile "index.html" svg

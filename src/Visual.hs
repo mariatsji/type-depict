@@ -43,6 +43,11 @@ renderSvg bubble@Bubble{..} = \case
         let bubbleA = Bubble{cx = cx, cy = cy, r = r - 10}
             cT = T.pack . show
          in circle_ [Cx_ <<- cT cx, Cy_ <<- cT cy, R_ <<- T.pack (show r), Stroke_ <<- "black", Stroke_width_ <<- "3", Fill_ <<- "none"] <> renderSvg bubbleA a
+    Group a ->
+        let bubbleA = Bubble{cx = cx, cy = cy, r = r - 10}
+            cT = T.pack . show
+         in circle_ [Cx_ <<- cT cx, Cy_ <<- cT cy, R_ <<- T.pack (show r), Stroke_ <<- "black", Stroke_dasharray_ <<- "4", Stroke_width_ <<- "3", Fill_ <<- "none"] <> renderSvg bubbleA a
+         
   where
     rightEdge :: (Float -> Float -> Text) -> Bubble -> Text
     rightEdge svgOp Bubble{..} = svgOp (cx + r) cy
