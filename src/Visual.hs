@@ -37,15 +37,18 @@ renderSvg bubble@Bubble{..} = \case
          in circle_ [Cx_ <<- cT cx, Cy_ <<- cT cy, R_ <<- "4", Fill_ <<- "black"]
     Connect a b ->
         let (bubbleA, bubbleB) = split bubble
-            path = path_ [D_ <<- centre mA bubbleA <> centre lA bubbleB, Stroke_ <<- "black"]
+            path = path_ [D_ <<- rightEdge mA bubbleA <> leftEdge lA bubbleB, Stroke_ <<- "black"]
          in renderSvg bubbleA a <> path <> renderSvg bubbleB b
     Embellish a ->
         let bubbleA = Bubble{cx = cx, cy = cy, r = r - 10}
             cT = T.pack . show
          in circle_ [Cx_ <<- cT cx, Cy_ <<- cT cy, R_ <<- T.pack (show r), Stroke_ <<- "black", Stroke_width_ <<- "3", Fill_ <<- "none"] <> renderSvg bubbleA a
   where
-    centre :: (Float -> Float -> Text) -> Bubble -> Text
-    centre svgOp Bubble{..} = svgOp cx cy
+    rightEdge :: (Float -> Float -> Text) -> Bubble -> Text
+    rightEdge svgOp Bubble{..} = svgOp (cx + r) cy
+
+    leftEdge :: (Float -> Float -> Text) -> Bubble -> Text
+    leftEdge svgOp Bubble{..} = svgOp (cx - r) cy
 
     split :: Bubble -> (Bubble, Bubble)
     split Bubble{..} =
