@@ -3,11 +3,12 @@ module Visual where
 import Data.Text (Text)
 import qualified Data.Text as T
 
+import Data.Foldable (fold)
 import Graphics.Svg
 
 data Visual
     = Fix Visual
-    | Connect Visual Visual
+    | Connect [Visual]
     | Embellish Visual
     | Group Visual
     | Dot String
@@ -16,7 +17,7 @@ data Visual
 render :: Visual -> Text
 render = \case
     Dot _ -> "."
-    Connect a b -> render a <> "--" <> render b
+    Connect xs -> T.intercalate "--" $ fmap render xs
     Embellish a -> "(" <> render a <> ")"
     Fix a -> "@" <> render a
     Group a -> "{" <> render a <> "}"
@@ -35,10 +36,18 @@ renderSvg bubble@Bubble{..} = \case
     Dot _ ->
         let cT = T.pack . show
          in circle_ [Cx_ <<- cT cx, Cy_ <<- cT cy, R_ <<- "4", Fill_ <<- "black"]
-    Connect a b ->
-        let (bubbleA, bubbleB) = split bubble
-            path = path_ [D_ <<- rightEdge mA bubbleA <> leftEdge lA bubbleB, Stroke_ <<- "black", Stroke_width_ <<- "3"]
-         in renderSvg bubbleA a <> path <> renderSvg bubbleB b
+    Connect [a,b] -> 
+        let bubbleB = jump bubble
+            path = path_ [D_ <<- rightEdge mA bubble <> leftEdge lA bubbleB, Stroke_ <<- "black", Stroke_width_ <<- "3"]
+        in renderSvg bubble a <> path <> renderSvg bubbleB b
+    Connect xs ->
+        foldMap
+            ( \visual ->
+                let bubbleA = jump bubble
+                    path = path_ [D_ <<- rightEdge mA bubble <> leftEdge lA bubbleA, Stroke_ <<- "black", Stroke_width_ <<- "3"]
+                 in renderSvg bubble visual <> path
+            )
+            xs
     Embellish a ->
         let bubbleA = Bubble{cx = cx, cy = cy, r = r - 10}
             cT = T.pack . show
@@ -51,9 +60,9 @@ renderSvg bubble@Bubble{..} = \case
         let bubbleA = Bubble{cx = cx, cy = cy, r = r - 10}
             cT = T.pack . show
          in circle_ [Cx_ <<- cT cx, Cy_ <<- cT cy, R_ <<- T.pack (show r), Stroke_ <<- "black", Stroke_width_ <<- "3", Fill_ <<- "none"]
-         <> path_ [D_ <<- bottomEdge mA bubble <> lR (-10) 10, Stroke_ <<- "black", Stroke_width_ <<- "3"]
-         <> path_ [D_ <<- bottomEdge mA bubble <> lR (-10) (-10), Stroke_ <<- "black", Stroke_width_ <<- "3"]
-         <> renderSvg bubbleA a
+                <> path_ [D_ <<- bottomEdge mA bubble <> lR (-10) 10, Stroke_ <<- "black", Stroke_width_ <<- "3"]
+                <> path_ [D_ <<- bottomEdge mA bubble <> lR (-10) (-10), Stroke_ <<- "black", Stroke_width_ <<- "3"]
+                <> renderSvg bubbleA a
   where
     rightEdge :: (Float -> Float -> Text) -> Bubble -> Text
     rightEdge svgOp Bubble{..} = svgOp (cx + r) cy
@@ -62,10 +71,7 @@ renderSvg bubble@Bubble{..} = \case
     leftEdge svgOp Bubble{..} = svgOp (cx - r) cy
 
     bottomEdge :: (Float -> Float -> Text) -> Bubble -> Text
-    bottomEdge svgOp Bubble{..} = svgOp cx (cy + r) 
+    bottomEdge svgOp Bubble{..} = svgOp cx (cy + r)
 
-    split :: Bubble -> (Bubble, Bubble)
-    split Bubble{..} =
-        let cxA = cx - r + (r / 3)
-            cxB = cx + r - (r / 3)
-         in (Bubble{cx = cxA, cy = cy, r = r / 3}, Bubble{cx = cxB, cy = cy, r = r / 3})
+    jump :: Bubble -> Bubble
+    jump Bubble{..} = Bubble{cx = cx + (3 * r), cy = cy, r = r}

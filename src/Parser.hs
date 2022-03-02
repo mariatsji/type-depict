@@ -34,15 +34,15 @@ fixParser :: Parser Visual
 fixParser = do
     c <- A.try connectParser
     case c of
-        (Connect (Group (Connect a b)) c) -> if b == c then pure (Fix a) else fail ""
+        (Connect [Connect [a, b], c]) -> if b == c then pure (Fix a) else fail ""
         _ -> fail ""
 
 connectParser :: Parser Visual
 connectParser = do
     a <- A.try connectableA
     _ <- A.space >> A.string "->" >> A.space
-    b <- connectableB
-    pure $ Connect a b
+    b <- A.many1 connectableB
+    pure $ Connect (a:b)
   where
     connectableA = groupParser <|> embellishParser <|> dotParser <|> listParser <|> tupleParser
     connectableB = connectParser <|> connectableA
