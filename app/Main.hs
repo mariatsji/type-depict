@@ -10,7 +10,7 @@ import Visual
 main :: IO ()
 main = do
     let visual =
-            Connect
+            Fix $ Connect
                 (Embellish $ Connect (Embellish (Dot "a")) (Embellish (Dot "b")))
                 (Group (Embellish $ Connect (Embellish (Dot "a")) (Embellish (Dot "b"))))
         container = [Version_ <<- "1.1", Width_ <<- "600", Height_ <<- "600"]
