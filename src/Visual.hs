@@ -55,19 +55,20 @@ renderSvg blobble@Blobble{..} = \case
                 <> connectLines blobblesWithVisuals
 
 connectLines :: [(Blobble, Visual)] -> Element
-connectLines [(b1, v1), (b2, v2)] = path_ [D_ <<- rightEdge mA b1 <> leftEdge lA b2, Stroke_ <<- "black", Stroke_width_ <<- "4"]
-connectLines ((b1, v1) : (b2, v2) : (b3, v3) : xs) =
-    connectLines [(b1, v1), (b2, v2)]
+connectLines [b1, b2] = path_ [D_ <<- rightEdge mA b1 <> leftEdge lA b2, Stroke_ <<- "black", Stroke_width_ <<- "4"]
+connectLines (b1 : b2 : b3 : xs) =
+    connectLines [b1, b2]
         <> path_ [D_ <<- rightEdge mA b2 <> leftEdge lA b3, Stroke_ <<- "black", Stroke_width_ <<- "4"]
         <> connectLines xs
 connectLines _ = mempty
 
+rightEdge :: (Float -> Float -> Text) -> (Blobble, Visual) -> Text
+rightEdge svgOp (Blobble{..}, Dot _) = svgOp (x + r + w / 2) (y + r)
+rightEdge svgOp (Blobble{..}, _) = svgOp (x + w + 2 * r) (y + r)
 
-rightEdge :: (Float -> Float -> Text) -> Blobble -> Text
-rightEdge svgOp Blobble{..} = svgOp (x + w + 2 * r) (y + r)
-
-leftEdge :: (Float -> Float -> Text) -> Blobble -> Text
-leftEdge svgOp Blobble{..} = svgOp x (y + r)
+leftEdge :: (Float -> Float -> Text) -> (Blobble, Visual) -> Text
+leftEdge svgOp (Blobble{..}, Dot _) = svgOp (x + r + w / 2) (y + r)
+leftEdge svgOp (Blobble{..}, _) = svgOp x (y + r)
 
 cT :: Float -> Text
 cT = T.pack . show
