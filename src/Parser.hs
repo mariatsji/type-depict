@@ -35,6 +35,7 @@ fixParser = do
     c <- A.try connectParser
     case c of
         (Connect [Connect [a, b], c]) -> if b == c then pure (Fix a) else fail ""
+        (Connect [Group (Connect [a, b]), c]) -> if b == c then pure (Fix a) else fail ""
         _ -> fail ""
 
 connectParser :: Parser Visual
@@ -90,7 +91,7 @@ groupParser =
         _ <- A.many' A.space <* A.char ')'
         pure x
   where
-    groupable = connectParser <|> embellishParser <|> dotParser <|> listParser
+    groupable = fixParser <|> connectParser <|> embellishParser <|> dotParser <|> listParser
 
 dotParser :: Parser Visual
 dotParser = Dot <$> word
