@@ -10,8 +10,8 @@ import Visual
 
 main :: IO ()
 main = do
-    let (Right visual) = Parser.parse "(a -> m b ) -> m a -> m b"
-        container = [Version_ <<- "1.1", Width_ <<- "3000", Height_ <<- "300"]
-        bubble = Bubble{cx = 150, cy = 150, r = 150}
-        svg = doctype <> with (svg11_ (renderSvg bubble visual)) container
+    let visual = Fix (Embellish (Group (Dot "a")))
+        container = [Version_ <<- "1.1", Width_ <<- "1500", Height_ <<- "500"]
+        blobble = Blobble{x = 5, y = 5, w = 1000, r = 150}
+        svg = doctype <> with (svg11_ (renderSvg blobble visual)) container
     renderToFile "index.html" svg
