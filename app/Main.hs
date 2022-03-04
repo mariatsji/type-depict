@@ -10,8 +10,8 @@ import Visual
 
 main :: IO ()
 main = do
-    let visual = Fix (Embellish (Group (Dot "a")))
-        container = [Version_ <<- "1.1", Width_ <<- "1500", Height_ <<- "500"]
-        blobble = Blobble{x = 5, y = 5, w = 1000, r = 150}
+    let visual = Connect [Group (Dot "a"), Group (Dot "a"), Group (Dot "a")]
+        container = [Version_ <<- "1.1", Width_ <<- "2500", Height_ <<- "500"]
+        blobble = Blobble{x = 5, y = 5, w = 2000, r = 150}
         svg = doctype <> with (svg11_ (renderSvg blobble visual)) container
     renderToFile "index.html" svg
