@@ -1,0 +1,13 @@
+cradle:
+  cabal:
+    - path: "src"
+      component: "lib:signature-visualizer"
+
+    - path: "app/Main.hs"
+      component: "signature-visualizer:exe:signature-visualizer"
+
+    - path: "webserver/Main.hs"
+      component: "signature-visualizer:exe:signature-visualizer-webserver"
+
+    - path: "test"
+      component: "signature-visualizer:test:signature-visualizer-test"

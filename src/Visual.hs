@@ -4,8 +4,6 @@ import Data.List (uncons)
 import Data.Text (Text)
 import qualified Data.Text as T
 
-import Debug.Trace
-
 import Data.Foldable (fold)
 import Graphics.Svg
 
@@ -49,16 +47,14 @@ renderSvg blobble@Blobble{..} = \case
          in rect <> renderSvg (shrink blobble) a
     Fix a ->
         renderSvg blobble (Embellish a)
-            <> path_ [D_ <<- mA (x + r + w / 2) (y + 2 * r) <> lR (-20) 20, Stroke_ <<- "black", Stroke_width_ <<- "4"]
-            <> path_ [D_ <<- mA (x + r + w / 2) (y + 2 * r) <> lR (-20) (-20), Stroke_ <<- "black", Stroke_width_ <<- "4"]
+            <> path_ [D_ <<- mA (x + r + w / 2 + 20) (y + 2 * r) <> lR (-20) 20, Stroke_ <<- "black", Stroke_width_ <<- "3"]
+            <> path_ [D_ <<- mA (x + r + w / 2 + 20) (y + 2 * r) <> lR (-20) (-20), Stroke_ <<- "black", Stroke_width_ <<- "3"]
             <> renderSvg (shrink blobble) a
     Connect xs ->
         let blobbles = split (length xs) blobble
             zipped = zip blobbles xs
          in foldMap
-                (\(blo, vis) ->
-                    renderSvg blo vis
-                )
+                (uncurry renderSvg)
                 zipped
             <> connectLines zipped
 
@@ -67,7 +63,7 @@ split parts super@Blobble{..} =
     if parts < 1
         then []
         else
-            let w' = ( (r + r + w ) / ( fromIntegral parts) - 4 * r)
+            let w' = ( (r + r + w ) / fromIntegral parts - 4 * r)
              in mkBlobble super w' <$> [0 .. pred parts]
   where
     mkBlobble :: Blobble -> Float -> Int -> Blobble

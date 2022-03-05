@@ -51,6 +51,32 @@ executable signature-visualizer
         text
     hs-source-dirs:   app
     default-language: Haskell2010
+    default-extensions:
+        DerivingStrategies
+        LambdaCase
+        OverloadedStrings
+        RankNTypes
+        RecordWildCards
+
+executable signature-visualizer-webserver
+    main-is:          Main.hs
+    ghc-options:     -O2 -rtsopts -threaded -with-rtsopts=-K1K -rtsopts "-with-rtsopts=-N2 -T"
+    build-depends:
+        base ^>=4.14.3.0,
+        neat-interpolation,
+        signature-visualizer,
+        svg-builder,
+        text,
+        scotty
+    hs-source-dirs:   webserver
+    default-language: Haskell2010
+    default-extensions:
+        DerivingStrategies
+        LambdaCase
+        OverloadedStrings
+        RankNTypes
+        RecordWildCards
+        QuasiQuotes
 
 Test-Suite signature-visualizer-test
     type:       exitcode-stdio-1.0
