@@ -1,5 +1,6 @@
 module Visual where
 
+import Data.List (uncons)
 import Data.Text (Text)
 import qualified Data.Text as T
 
@@ -51,23 +52,23 @@ renderSvg blobble@Blobble{..} = \case
             <> renderSvg (shrink blobble) a
     Connect xs ->
         let blobblesWithVisuals = zip (split (length xs) blobble) xs
-         in foldMap (\(blo, vis) -> renderSvg blo vis) blobblesWithVisuals
+         in foldMap (\(blo, vis) -> renderSvg (shrink blo) vis) blobblesWithVisuals
                 <> connectLines blobblesWithVisuals
 
 connectLines :: [(Blobble, Visual)] -> Element
 connectLines [b1, b2] = path_ [D_ <<- rightEdge mA b1 <> leftEdge lA b2, Stroke_ <<- "black", Stroke_width_ <<- "4"]
-connectLines (b1 : b2 : b3 : xs) =
-    connectLines [b1, b2]
-        <> path_ [D_ <<- rightEdge mA b2 <> leftEdge lA b3, Stroke_ <<- "black", Stroke_width_ <<- "4"]
-        <> connectLines xs
+connectLines (b1 : xs) =
+    case uncons xs of
+        Nothing -> mempty
+        Just (t, xs') ->  connectLines [b1, t] <> connectLines xs'
 connectLines _ = mempty
 
 rightEdge :: (Float -> Float -> Text) -> (Blobble, Visual) -> Text
-rightEdge svgOp (Blobble{..}, Dot _) = svgOp (x + r + w / 2) (y + r)
-rightEdge svgOp (Blobble{..}, _) = svgOp (x + w + 2 * r) (y + r)
+rightEdge svgOp (Blobble{..}, Dot _) = svgOp (x + r + ( w / 2 )) (y + r)
+rightEdge svgOp (Blobble{..}, _) = svgOp (x + w + ( 2 * r )) (y + r)
 
 leftEdge :: (Float -> Float -> Text) -> (Blobble, Visual) -> Text
-leftEdge svgOp (Blobble{..}, Dot _) = svgOp (x + r + w / 2) (y + r)
+leftEdge svgOp (Blobble{..}, Dot _) = svgOp (x + r + ( w / 2 ) ) (y + r)
 leftEdge svgOp (Blobble{..}, _) = svgOp x (y + r)
 
 cT :: Float -> Text
@@ -81,14 +82,14 @@ split parts super@Blobble{..} =
     if parts < 1
         then []
         else
-            let indiWIDTHual = w / (fromIntegral parts)
+            let indiWIDTHual = ( r + r + w ) / (fromIntegral parts)
              in mkBlobble super indiWIDTHual <$> [0 .. pred parts]
   where
     mkBlobble :: Blobble -> Float -> Int -> Blobble
-    mkBlobble Blobble{..} width i =
+    mkBlobble Blobble{..} myW i =
         Blobble
             { r = r
-            , x = x + (fromIntegral i * width) + (fromIntegral i * r)
-            , w = width - 2 * r - 80
+            , x = x + fromIntegral i * myW
+            , w = myW - ( 2 * r )
             , y = y
             }

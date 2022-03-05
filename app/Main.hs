@@ -10,8 +10,7 @@ import Visual
 
 main :: IO ()
 main = do
-    let visual = -- Connect [Group (Dot "a"), Group (Dot "a"), Group (Dot "a")]
-                 Connect [Dot "a", Embellish (Dot "a")]
+    let (Right visual) = Parser.parse "m a -> m b -> m c"
         container = [Version_ <<- "1.1", Width_ <<- "2500", Height_ <<- "500"]
         blobble = Blobble{x = 5, y = 5, w = 2000, r = 150}
         svg = doctype <> with (svg11_ (renderSvg blobble visual)) container
