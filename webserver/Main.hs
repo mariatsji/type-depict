@@ -2,8 +2,8 @@ module Main where
 
 import Control.Monad.IO.Class (liftIO)
 import Data.Foldable (fold)
-import Data.Text.Lazy (Text, fromStrict, toStrict)
 import qualified Data.Text as StrictText
+import Data.Text.Lazy (Text, fromStrict, toStrict)
 import qualified Data.Text.Lazy.Encoding as TE
 import Debug.Trace (traceShowId)
 import Graphics.Svg
@@ -26,7 +26,7 @@ main = do
             expression <- param "signature"
             let txt = toStrict $ TE.decodeUtf8 expression
             case Parser.parse (traceShowId txt) of
-                Left _ -> html (mainHtml "a -> b" "<p class=\"error\">Sorry, expression did not parse</p>")
+                Left _ -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, expression did not parse</p>")
                 Right vis -> do
                     let container = [Version_ <<- "1.1", Width_ <<- "1000", Height_ <<- "300"]
                         blobble = Visual.Blobble{x = 5, y = 5, w = 600, r = 30}
@@ -37,7 +37,14 @@ mainHtml :: Text -> Text -> Text
 mainHtml expr content = fold ["<!DOCTYPE html>", "<html lang=\"en\">", htmlHead, htmlBody expr content, "</html>"]
 
 htmlHead :: Text
-htmlHead = fold ["<head>", "<meta charset=\"utf-8\" />", "<link rel=\"stylesheet\" href=\"/style.css\">", "</head>"]
+htmlHead =
+    fold
+        [ "<head>"
+        , "<link rel=\"stylesheet\" type=\"text/css\" href=\"/style.css\" />"
+        , "<title>Haskell Signature Visualizer</title>"
+        , "<meta charset=\"utf-8\" />"
+        , "</head>"
+        ]
 
 htmlBody :: Text -> Text -> Text
 htmlBody expr content = fold ["<body>", "<h1>", "Haskell Expression Visualizer", "</h1>", htmlForm expr, content, "</body>"]
@@ -45,8 +52,8 @@ htmlBody expr content = fold ["<body>", "<h1>", "Haskell Expression Visualizer",
 htmlForm :: Text -> Text
 htmlForm expr =
     let strictT = toStrict expr
-    in fromStrict
-        [NI.text|
+     in fromStrict
+            [NI.text|
          <form action="/submit" method="post">
             <label for="signature">Haskell Type Signature</label><br>
             <input type="text" id="signature" name="signature" value="$strictT"><br>
