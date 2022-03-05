@@ -4,6 +4,8 @@ import Data.List (uncons)
 import Data.Text (Text)
 import qualified Data.Text as T
 
+import Debug.Trace
+
 import Data.Foldable (fold)
 import Graphics.Svg
 
@@ -40,10 +42,10 @@ renderSvg blobble@Blobble{..} = \case
         let mid = x + r + w / 2
          in circle_ [Cx_ <<- cT mid, Cy_ <<- cT (y + r), R_ <<- "5", Fill_ <<- "black"]
     Embellish a ->
-        let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (2 * r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3"]
+        let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3"]
          in rect <> renderSvg (shrink blobble) a
     Group a ->
-        let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (2 * r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3", Stroke_dasharray_ <<- "4"]
+        let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3", Stroke_dasharray_ <<- "4"]
          in rect <> renderSvg (shrink blobble) a
     Fix a ->
         renderSvg blobble (Embellish a)
@@ -51,9 +53,14 @@ renderSvg blobble@Blobble{..} = \case
             <> path_ [D_ <<- mA (x + r + w / 2) (y + 2 * r) <> lR (-20) (-20), Stroke_ <<- "black", Stroke_width_ <<- "4"]
             <> renderSvg (shrink blobble) a
     Connect xs ->
-        let blobblesWithVisuals = zip (split (length xs) blobble) xs
-         in foldMap (\(blo, vis) -> renderSvg (shrink blo) vis) blobblesWithVisuals
-                <> connectLines blobblesWithVisuals
+        let blobbles = traceShowId $ split (length (traceShowId xs)) blobble
+            zipped = zip blobbles xs
+         in foldMap
+                (\(blo, vis) ->
+                    renderSvg (traceShowId blo) (traceShowId vis)
+                )
+                zipped
+            <> connectLines zipped
 
 connectLines :: [(Blobble, Visual)] -> Element
 connectLines [b1, b2] = path_ [D_ <<- rightEdge mA b1 <> leftEdge lA b2, Stroke_ <<- "black", Stroke_width_ <<- "4"]
@@ -82,14 +89,14 @@ split parts super@Blobble{..} =
     if parts < 1
         then []
         else
-            let indiWIDTHual = ( r + r + w ) / (fromIntegral parts)
-             in mkBlobble super indiWIDTHual <$> [0 .. pred parts]
+            let w' = ( (r + r + w ) / ( fromIntegral parts) - r - r )
+             in mkBlobble super w' <$> [0 .. pred parts]
   where
     mkBlobble :: Blobble -> Float -> Int -> Blobble
     mkBlobble Blobble{..} myW i =
         Blobble
             { r = r
-            , x = x + fromIntegral i * myW
-            , w = myW - ( 2 * r )
+            , x = x + fromIntegral i * ( myW + 2 * r )
+            , w = myW
             , y = y
             }
