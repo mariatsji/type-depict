@@ -67,14 +67,14 @@ split parts super@Blobble{..} =
     if parts < 1
         then []
         else
-            let w' = ( (r + r + w ) / ( fromIntegral parts) - r - r )
+            let w' = ( (r + r + w ) / ( fromIntegral parts) - 4 * r)
              in mkBlobble super w' <$> [0 .. pred parts]
   where
     mkBlobble :: Blobble -> Float -> Int -> Blobble
     mkBlobble Blobble{..} myW i =
         Blobble
             { r = r
-            , x = x + fromIntegral i * ( myW + 2 * r )
+            , x = x + fromIntegral i * ( myW + 4 * r )
             , w = myW
             , y = y
             }
@@ -84,7 +84,7 @@ connectLines [b1, b2] = path_ [D_ <<- rightEdge mA b1 <> leftEdge lA b2, Stroke_
 connectLines (b1 : xs) =
     case uncons xs of
         Nothing -> mempty
-        Just (t, xs') ->  connectLines [b1, t] <> connectLines xs'
+        Just (t, xs') ->  connectLines [b1, t] <> connectLines ( t : xs' )
 connectLines _ = mempty
 
 rightEdge :: (Float -> Float -> Text) -> (Blobble, Visual) -> Text
