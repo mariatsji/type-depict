@@ -52,11 +52,12 @@ connectParser = do
 embellishParser :: Parser Visual
 embellishParser = Embellish <$> (embellish4 <|> embellish3 <|> embellish2 <|> embellish1) <?> "no embellish"
   where
-    embellish1 = word >> A.space >> embellishable
-    embellish2 = word >> A.space >> word >> A.space >> embellishable
-    embellish3 = word >> A.space >> word >> A.space >> word >> A.space >> embellishable
-    embellish4 = word >> A.space >> word >> A.space >> word >> A.space >> word >> A.space >> embellishable
+    embellish1 = wordspace >> embellishable
+    embellish2 = wordspace >> wordspace >> embellishable
+    embellish3 = wordspace >> wordspace >> wordspace >> embellishable
+    embellish4 = wordspace >> wordspace >> wordspace >> wordspace >> embellishable
     embellishable = groupParser <|> dotParser <|> connectParser <|> listParser <|> tupleParser
+    wordspace = word >> A.space
 
 listParser :: Parser Visual
 listParser =

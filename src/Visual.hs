@@ -53,14 +53,31 @@ renderSvg blobble@Blobble{..} = \case
             <> path_ [D_ <<- mA (x + r + w / 2) (y + 2 * r) <> lR (-20) (-20), Stroke_ <<- "black", Stroke_width_ <<- "4"]
             <> renderSvg (shrink blobble) a
     Connect xs ->
-        let blobbles = traceShowId $ split (length (traceShowId xs)) blobble
+        let blobbles = split (length xs) blobble
             zipped = zip blobbles xs
          in foldMap
                 (\(blo, vis) ->
-                    renderSvg (traceShowId blo) (traceShowId vis)
+                    renderSvg blo vis
                 )
                 zipped
             <> connectLines zipped
+
+split :: Int -> Blobble -> [Blobble]
+split parts super@Blobble{..} =
+    if parts < 1
+        then []
+        else
+            let w' = ( (r + r + w ) / ( fromIntegral parts) - r - r )
+             in mkBlobble super w' <$> [0 .. pred parts]
+  where
+    mkBlobble :: Blobble -> Float -> Int -> Blobble
+    mkBlobble Blobble{..} myW i =
+        Blobble
+            { r = r
+            , x = x + fromIntegral i * ( myW + 2 * r )
+            , w = myW
+            , y = y
+            }
 
 connectLines :: [(Blobble, Visual)] -> Element
 connectLines [b1, b2] = path_ [D_ <<- rightEdge mA b1 <> leftEdge lA b2, Stroke_ <<- "black", Stroke_width_ <<- "4"]
@@ -84,19 +101,3 @@ cT = T.pack . show
 shrink :: Blobble -> Blobble
 shrink Blobble{..} = Blobble{x = x + 8, y = y + 8, w = w - 1, r = r - 8}
 
-split :: Int -> Blobble -> [Blobble]
-split parts super@Blobble{..} =
-    if parts < 1
-        then []
-        else
-            let w' = ( (r + r + w ) / ( fromIntegral parts) - r - r )
-             in mkBlobble super w' <$> [0 .. pred parts]
-  where
-    mkBlobble :: Blobble -> Float -> Int -> Blobble
-    mkBlobble Blobble{..} myW i =
-        Blobble
-            { r = r
-            , x = x + fromIntegral i * ( myW + 2 * r )
-            , w = myW
-            , y = y
-            }
