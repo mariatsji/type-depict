@@ -21,8 +21,10 @@ readPort = do
 
 main :: IO ()
 main = do
+    putStrLn "Hello world, lets see what port"
     port <- readPort
-    putStrLn "scotty webserver :3000"
+    print port
+    putStrLn "scotty webserver going up"
     scotty port $ do
         get "/" $ do
             html $ mainHtml "(a -> m b) -> m a -> m b" ""
