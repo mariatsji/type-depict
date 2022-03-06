@@ -1,4 +1,4 @@
-{ pkgs ? import ./nixpkgs.nix }:
+{ pkgs ? import ./nix/nixpkgs.nix }:
 
 let haskellStuff = with pkgs;
         [ 
@@ -15,6 +15,7 @@ let haskellStuff = with pkgs;
             nixfmt
             git
             curl
+            heroku
         ];
     all = haskellStuff ++ tools;
 

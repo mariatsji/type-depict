@@ -10,4 +10,20 @@ jobs:
     - uses: cachix/install-nix-action@v15
       with:
         nix_path: nixpkgs=channel:nixos-unstable
-    - run: nix-build
+    - name: Build nix docker base image
+      run: |
+            nix-build nix/docker.nix --arg artifact 'import ./default.nix' -o dockerImage
+            echo "loading resulting nix-built docker image"
+            docker load -i dockerImage
+    - name: Login to Heroku Container registry
+      env: 
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: heroku container:login 
+    - name: Push docker to Heroku
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: heroku container:push -a ${{ secrets.HEROKU_APP_NAME }} web 
+    - name: Release Heroku
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: heroku container:release -a ${{ secrets.HEROKU_APP_NAME }} web
