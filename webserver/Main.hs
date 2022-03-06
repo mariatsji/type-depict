@@ -12,10 +12,18 @@ import qualified Parser
 import qualified Visual
 import Web.Scotty
 
+import System.Environment (lookupEnv)
+
+-- heroku provides PORT
+readPort :: IO Int
+readPort = do
+    maybe 3000 (read @Int) <$> lookupEnv "PORT"
+
 main :: IO ()
 main = do
+    port <- readPort
     putStrLn "scotty webserver :3000"
-    scotty 3000 $ do
+    scotty port $ do
         get "/" $ do
             html $ mainHtml "(a -> m b) -> m a -> m b" ""
         get "/style.css" $ do

@@ -1,4 +1,4 @@
-{ pkgs ? import ./nix/nixpkgs.nix }:
+{ pkgs ? import ./nix/nixpkgs.nix, herokuSecret ? null }:
 
 let haskellStuff = with pkgs;
         [ 
@@ -25,4 +25,10 @@ in pkgs.mkShell {
   packages = all;
   # add all the dependencies, of the given packages, to the shell environment
   inputsFrom = with pkgs; all;
+  HEROKU_API_KEY = herokuSecret;
+  shellHook =
+    if isNull herokuSecret then "" else ''
+      heroku container:login
+      docker login --username=_ --password=$(heroku auth:token) registry.heroku.com
+    '';
 }
