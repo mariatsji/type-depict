@@ -13,6 +13,8 @@ import qualified Visual
 import Web.Scotty
 
 import System.Environment (lookupEnv)
+import System.IO
+    ( stdout, hSetBuffering, BufferMode(LineBuffering) )
 
 -- heroku provides PORT
 readPort :: IO Int
@@ -21,6 +23,7 @@ readPort = do
 
 main :: IO ()
 main = do
+    hSetBuffering stdout LineBuffering
     putStrLn "Hello world, lets see what port"
     port <- readPort
     print port
