@@ -20,7 +20,7 @@ jobs:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       run: |
             heroku container:login
-            docker login --username=_ --*** auth:token) registry.heroku.com
+            docker login --username=_ --password=$(heroku auth:token) registry.heroku.com
     - name: Tag docker to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
