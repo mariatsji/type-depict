@@ -18,14 +18,19 @@ jobs:
     - name: Login to Heroku Container registry
       env: 
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: docker login --username=_ --password=$(heroku auth:token) registry.heroku.com
-    - name: Push docker to Heroku
+      run: |
+            heroku container:login
+            docker login --username=_ --*** auth:token) registry.heroku.com
+    - name: Tag docker to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       run: |
-            docker tag ${{ secrets.HEROKU_APP_NAME }} registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web
-            docker push registry.heroku.com/${{ secrets.HEROKU_APP_NAME }}/web
+            docker tag signaturevisualizer registry.heroku.com/signature-visualizer/web
+    - name: Push docker to Heroku
+      env:
+        HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+      run: docker push registry.heroku.com/signature-visualizer/web
     - name: Release Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: heroku container:release -a ${{ secrets.HEROKU_APP_NAME }} web
+      run: heroku container:release -a signature-visualizer web
