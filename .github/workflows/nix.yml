@@ -31,7 +31,7 @@ jobs:
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
       run: docker push registry.heroku.com/signature-visualizer/web
-    - name: Heroku docker release
+    - name: Heroku container release
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: heroku container:release web
+      run: heroku container:release web -a signature-visualizer
