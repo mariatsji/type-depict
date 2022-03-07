@@ -1,7 +1,7 @@
-name: "nixify"
+name: "Build and release to Heroku"
 on:
-  pull_request:
   push:
+    branches: [ main ]
 jobs:
   tests:
     runs-on: ubuntu-latest
@@ -24,7 +24,7 @@ jobs:
     - name: Tag docker to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: docker tag signaturevisualizer registry.heroku.com/signature-visualizer/web
+      run: docker tag signature-visualizer:latest registry.heroku.com/signature-visualizer/web
     - name: Inspect tagged
       run: docker inspect -s registry.heroku.com/signature-visualizer/web
     - name: Push docker to Heroku

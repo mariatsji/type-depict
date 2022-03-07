@@ -2,29 +2,8 @@
 
 let
   nixpkgs = import ./nixpkgs.nix;
-  artifactName = "signaturevisualizer";
-
-  nonRootShadowSetup = { user, uid, gid ? uid }: [
-    (nixpkgs.writeTextDir "etc/shadow" ''
-      root:!x:::::::
-      ${user}:!:::::::
-    '')
-    (nixpkgs.writeTextDir "etc/passwd" ''
-      root:x:0:0::/root:${nixpkgs.runtimeShell}
-      ${user}:x:${toString uid}:${toString gid}::/home/${user}:
-    '')
-    (nixpkgs.writeTextDir "etc/group" ''
-      root:x:0:
-      ${user}:x:${toString gid}:
-    '')
-    (nixpkgs.writeTextDir "etc/gshadow" ''
-      root:x::
-      ${user}:x::
-    '')
-  ];
-
-  processUser = "simon";
-  artifactWithLinks = (import ./extrafiles.nix) { inherit artifact artifactName; extraDirs = [ ../webserver/assets ]; };
+  artifactName = "signature-visualizer";
+  extraFiles = ../assets;
 
   # builds a base image to extend with a stack-built binary
 in with nixpkgs; dockerTools.buildLayeredImage {
@@ -33,7 +12,7 @@ in with nixpkgs; dockerTools.buildLayeredImage {
   created = "now";
   # runtime system deps  and binary tools in the docker image goes here
   contents = [
-    artifactWithLinks
+    artifact
     libiconv
     libffi
     gmp
@@ -42,19 +21,17 @@ in with nixpkgs; dockerTools.buildLayeredImage {
     curl
     zlib
     tzdata
-  ] ++ (nonRootShadowSetup {
-    uid = 999;
-    user = "${processUser}";
-  });
+  ];
+
+  extraCommands = ''
+    cp -rf ${extraFiles} assets
+  '';
 
   config = {
     Env = [
       "TZ=Europe/Oslo"
       "PATH=${bash}/bin:${busybox}/bin:${curl}/bin"
     ];
-    WorkingDir = "${artifactWithLinks}";
-    User = "${processUser}";
-    Entrypoint = [ "${artifactWithLinks}/bin/signature-visualizer-webserver" ];
-    ExposedPorts = { "3000/tcp" = { }; };
+    Cmd = [ "${artifact}/bin/signature-visualizer-webserver" ];
   };
 }

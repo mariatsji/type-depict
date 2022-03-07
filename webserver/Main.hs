@@ -33,7 +33,7 @@ main = do
             html $ mainHtml "(a -> m b) -> m a -> m b" ""
         get "/style.css" $ do
             setHeader "Content-Type" "text/css; charset=utf-8"
-            file "webserver/assets/style.css"
+            file "assets/style.css"
         post "/submit" $ do
             liftIO $ putStrLn "submit"
             expression <- param "signature"
