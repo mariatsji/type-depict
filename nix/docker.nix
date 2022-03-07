@@ -54,7 +54,7 @@ in with nixpkgs; dockerTools.buildLayeredImage {
     ];
     WorkingDir = "${artifactWithLinks}";
     User = "${processUser}";
-    Cmd = [ "${artifactWithLinks}/bin/signature-visualizer-webserver" ];
+    Entrypoint = [ "${artifactWithLinks}/bin/signature-visualizer-webserver" ];
     ExposedPorts = { "3000/tcp" = { }; };
   };
 }
