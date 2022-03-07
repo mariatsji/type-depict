@@ -34,4 +34,4 @@ jobs:
     - name: Heroku docker release
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: heroku container:release -a signature-visualizer
+      run: heroku container:release web
