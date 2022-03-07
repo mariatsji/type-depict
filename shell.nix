@@ -16,6 +16,7 @@ let haskellStuff = with pkgs;
             git
             curl
             heroku
+            graphviz
         ];
     all = haskellStuff ++ tools;
 
