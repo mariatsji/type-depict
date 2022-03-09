@@ -1,4 +1,6 @@
 dist-newstyle/
 result
 sjur.nix
-
+nix/tvbox.sh
+nix/ping.sh
+nix/remotebuild.sh

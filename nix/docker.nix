@@ -4,7 +4,7 @@ let
   nixpkgs = import ./nixpkgs.nix;
   artifactName = "signature-visualizer";
   extraFiles = ../assets;
-
+  
   # builds a base image to extend with a stack-built binary
 in with nixpkgs; dockerTools.buildLayeredImage {
   name = artifactName;
