@@ -59,7 +59,28 @@ renderSvg blobble@Blobble{..} = \case
             <> connectLines zipped
 
 split :: Int -> Blobble -> [Blobble]
-split parts super@Blobble{..} =
+split n parent =
+    if n < 2 then [parent]
+    else
+        fmap (foo parent n) [ 1 .. n ]
+    where
+        foo :: Blobble -> Int -> Int -> Blobble
+        foo Blobble{..} total idx =
+            let r' = r
+                c = if idx == 1 then 0 else r'
+                w' = (w + 3 * r - (3 * fromIntegral total * r)) / 2
+            in Blobble {
+                x = x + ((r' + w' + r' + c) * fromIntegral (pred idx)),
+                y = y,
+                r = r,
+                w = w'
+            }
+
+
+
+
+split' :: Int -> Blobble -> [Blobble]
+split' parts super@Blobble{..} =
     if parts < 1
         then []
         else

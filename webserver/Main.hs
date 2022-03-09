@@ -41,7 +41,7 @@ main = do
             case Parser.parse (traceShowId txt) of
                 Left _ -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, expression did not parse</p>")
                 Right vis -> do
-                    let container = [Version_ <<- "1.1", Width_ <<- "1200", Height_ <<- "300"]
+                    let container = [Version_ <<- "1.1", Width_ <<- "2000", Height_ <<- "300"]
                         blobble = Visual.Blobble{x = 5, y = 5, w = 1000, r = 40}
                         svg = doctype <> with (svg11_ (Visual.renderSvg blobble vis)) container
                     html (mainHtml (fromStrict txt) (prettyText svg))
