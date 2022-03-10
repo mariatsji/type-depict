@@ -7,23 +7,36 @@ import Data.Text.Lazy (Text, fromStrict, toStrict)
 import qualified Data.Text.Lazy.Encoding as TE
 import Debug.Trace (traceShowId)
 import Graphics.Svg
+import qualified Hoogle
 import qualified NeatInterpolation as NI
+import Network.HTTP.Client
+import Network.HTTP.Client.TLS (tlsManagerSettings)
 import qualified Parser
 import qualified Visual
 import Web.Scotty
 
 import System.Environment (lookupEnv)
-import System.IO
-    ( stdout, hSetBuffering, BufferMode(LineBuffering) )
+import System.IO (
+    BufferMode (LineBuffering),
+    hSetBuffering,
+    stdout,
+ )
 
 -- heroku provides PORT
 readPort :: IO Int
 readPort = do
     maybe 3000 (read @Int) <$> lookupEnv "PORT"
 
+container :: [Attribute]
+container = [Version_ <<- "1.1", Width_ <<- "2000", Height_ <<- "300"]
+
+blobble :: Visual.Blobble
+blobble = Visual.Blobble{x = 5, y = 5, w = 1000, r = 40}
+
 main :: IO ()
 main = do
     hSetBuffering stdout LineBuffering
+    manager <- newManager tlsManagerSettings
     putStrLn "Hello world, lets see what port"
     port <- readPort
     print port
@@ -41,10 +54,23 @@ main = do
             case Parser.parse (traceShowId txt) of
                 Left _ -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, expression did not parse</p>")
                 Right vis -> do
-                    let container = [Version_ <<- "1.1", Width_ <<- "2000", Height_ <<- "300"]
-                        blobble = Visual.Blobble{x = 5, y = 5, w = 1000, r = 40}
-                        svg = doctype <> with (svg11_ (Visual.renderSvg blobble vis)) container
+                    let svg = doctype <> with (svg11_ (Visual.renderSvg blobble vis)) container
                     html (mainHtml (fromStrict txt) (prettyText svg))
+        post "/hoogle" $ do
+            liftIO $ putStrLn "hoogle"
+            needleP <- param "signature"
+            let needle = toStrict $ TE.decodeUtf8 needleP
+            hoogleRes <- liftIO $ Hoogle.search manager needle
+            either
+                (\s -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, hoogle did not respond ok</p>"))
+                ( \txt ->
+                    case Parser.parse (traceShowId txt) of
+                        Left _ -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, hoogle-result did not parse</p>")
+                        Right vis -> do
+                            let svg = doctype <> with (svg11_ (Visual.renderSvg blobble vis)) container
+                            html (mainHtml (fromStrict txt) (prettyText svg))
+                )
+                hoogleRes
 
 mainHtml :: Text -> Text -> Text
 mainHtml expr content = fold ["<!DOCTYPE html>", "<html lang=\"en\">", htmlHead, htmlBody expr content, "</html>"]
@@ -69,7 +95,8 @@ htmlForm expr =
             [NI.text|
          <form action="/submit" method="post">
             <label for="signature">Haskell Type Signature</label><br>
-            <input type="text" id="signature" name="signature" size="70" value="$strictT"><br>
-            <input type="submit" value="Visualize">
+            <input type="text" id="signature" name="signature" size="90" value="$strictT"><br>
+            <button type="submit">Visualize</button>
+            <button type="submit" formaction="/hoogle">Hoogle</button>
         </form> 
     |]
