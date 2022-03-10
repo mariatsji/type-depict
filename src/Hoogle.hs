@@ -20,7 +20,10 @@ instance FromJSON HoogleRes
 
 search :: Manager -> Text -> IO (Either String Text)
 search manager needle = do
-    let url = searchUrl needle
+    let needle' = case T.split (== ' ') needle of
+                        x:_ -> x
+                        _ -> "id"
+        url = searchUrl needle'
     request <- parseRequest url
     withResponse request manager $ do
         \responseBodyR -> do
