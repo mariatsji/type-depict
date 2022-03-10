@@ -95,7 +95,7 @@ htmlHead =
         ]
 
 htmlBody :: Expr -> Content -> Html
-htmlBody expr (Content content) = fold ["<body>", "<h1>", "Haskell Expression Visualizer", "</h1>", htmlForm expr, content, "</body>"]
+htmlBody expr (Content content) = fold ["<body>", "<h1>", "Haskell Expression Visualizer", "</h1>", htmlForm expr, content, credits, "</body>"]
 
 htmlForm :: Expr -> Html
 htmlForm (Expr expr) =
@@ -108,4 +108,10 @@ htmlForm (Expr expr) =
             <button type="submit" class="bluebg">Visualize</button>
             <button type="submit" class="greenbg" formaction="/hoogle">Hoogle</button>
         </form> 
+    |]
+
+credits :: Html
+credits = fromStrict
+    [NI.text|
+        <p class="credits">Created by <a href="https://twitter.com/SjurMillidahl">Sjur Millidahl</a>, published at <a href="https://github.com/mariatsji/signature-visualizer">GitHub</a></p>
     |]

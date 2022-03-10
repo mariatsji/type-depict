@@ -8,6 +8,9 @@
 body {
     background-color: antiquewhite;
 }
+a {
+    margin: 0px;
+}
 .red {
     color: red;
 }
@@ -16,4 +19,8 @@ body {
 }
 .greenbg {
     background-color: lightgreen;
+}
+.credits {
+    font-size: 10px;
+    color: lightslategrey;
 }
