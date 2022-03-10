@@ -5,6 +5,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 
 import Data.Foldable (fold)
+import Debug.Trace
 import Graphics.Svg
 
 data Visual
@@ -44,7 +45,7 @@ renderSvg blobble@Blobble{..} = \case
          in rect <> renderSvg (shrink blobble) a
     Group a ->
         let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3", Stroke_dasharray_ <<- "4"]
-         in rect <> renderSvg (shrink blobble) a
+         in trace (show blobble) $ rect <> renderSvg (shrink blobble) a
     Fix a ->
         renderSvg blobble (Embellish a)
             <> path_ [D_ <<- mA (x + r + w / 2 + 20) (y + 2 * r) <> lR (-20) 20, Stroke_ <<- "black", Stroke_width_ <<- "3"]
@@ -53,7 +54,7 @@ renderSvg blobble@Blobble{..} = \case
     Connect xs ->
         let blobbles = split (length xs) blobble
             zipped = zip blobbles xs
-         in foldMap
+         in trace (show blobbles) foldMap
                 (uncurry renderSvg)
                 zipped
             <> connectLines zipped
@@ -68,7 +69,8 @@ split n parent =
         foo Blobble{..} total idx =
             let r' = r
                 c = if idx == 1 then 0 else r'
-                w' = (w + 3 * r - (3 * fromIntegral total * r)) / 2
+                n = fromIntegral total
+                w' = (w - 3 * n * r + 3 * r ) / n
             in Blobble {
                 x = x + ((r' + w' + r' + c) * fromIntegral (pred idx)),
                 y = y,
