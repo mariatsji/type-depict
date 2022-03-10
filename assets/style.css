@@ -5,6 +5,15 @@
     margin-bottom: 16px;
     margin-left: 16px;
 }
+body {
+    background-color: antiquewhite;
+}
 .red {
     color: red;
+}
+.bluebg {
+    background-color: lightskyblue;
+}
+.greenbg {
+    background-color: lightgreen;
 }

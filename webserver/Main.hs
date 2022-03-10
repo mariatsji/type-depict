@@ -21,6 +21,7 @@ import System.IO (
     hSetBuffering,
     stdout,
  )
+import Data.String (IsString)
 
 -- heroku provides PORT
 readPort :: IO Int
@@ -55,7 +56,7 @@ main = do
                 Left _ -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, expression did not parse</p>")
                 Right vis -> do
                     let svg = doctype <> with (svg11_ (Visual.renderSvg blobble vis)) container
-                    html (mainHtml (fromStrict txt) (prettyText svg))
+                    html (mainHtml (Expr . fromStrict $ txt) (Content $ prettyText svg))
         post "/hoogle" $ do
             liftIO $ putStrLn "hoogle"
             needleP <- param "signature"
@@ -68,14 +69,22 @@ main = do
                         Left _ -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, hoogle-result did not parse</p>")
                         Right vis -> do
                             let svg = doctype <> with (svg11_ (Visual.renderSvg blobble vis)) container
-                            html (mainHtml (fromStrict txt) (prettyText svg))
+                            html (mainHtml (Expr . fromStrict $ txt) (Content $ prettyText svg))
                 )
                 hoogleRes
 
-mainHtml :: Text -> Text -> Text
+newtype Expr = Expr Text
+    deriving stock (Eq, Show) deriving newtype IsString
+
+newtype Content = Content Text
+    deriving stock (Eq, Show) deriving newtype IsString
+
+type Html = Text
+
+mainHtml :: Expr -> Content -> Html
 mainHtml expr content = fold ["<!DOCTYPE html>", "<html lang=\"en\">", htmlHead, htmlBody expr content, "</html>"]
 
-htmlHead :: Text
+htmlHead :: Html
 htmlHead =
     fold
         [ "<head>"
@@ -85,18 +94,18 @@ htmlHead =
         , "</head>"
         ]
 
-htmlBody :: Text -> Text -> Text
-htmlBody expr content = fold ["<body>", "<h1>", "Haskell Expression Visualizer", "</h1>", htmlForm expr, content, "</body>"]
+htmlBody :: Expr -> Content -> Html
+htmlBody expr (Content content) = fold ["<body>", "<h1>", "Haskell Expression Visualizer", "</h1>", htmlForm expr, content, "</body>"]
 
-htmlForm :: Text -> Text
-htmlForm expr =
+htmlForm :: Expr -> Html
+htmlForm (Expr expr) =
     let strictT = toStrict expr
      in fromStrict
             [NI.text|
          <form action="/submit" method="post">
             <label for="signature">Haskell Type Signature</label><br>
-            <input type="text" id="signature" name="signature" size="90" value="$strictT"><br>
-            <button type="submit">Visualize</button>
-            <button type="submit" formaction="/hoogle">Hoogle</button>
+            <input type="text" id="signature" name="signature" size="90" autocomplete="off" value="$strictT"><br>
+            <button type="submit" class="bluebg">Visualize</button>
+            <button type="submit" class="greenbg" formaction="/hoogle">Hoogle</button>
         </form> 
     |]

@@ -79,8 +79,6 @@ split n parent =
             }
 
 
-
-
 split' :: Int -> Blobble -> [Blobble]
 split' parts super@Blobble{..} =
     if parts < 1
