@@ -42,12 +42,12 @@ connectParser :: Parser Visual
 connectParser = do
     a <- A.try connectableA
     bs <- A.many1 $ do
-            _ <- A.space >> A.string "->" >> A.space
-            connectableB
+        _ <- A.space >> A.string "->" >> A.space
+        connectableB
     pure $ Connect (a : bs)
-    where
-        connectableA = groupParser <|> embellishParser <|> dotParser <|> listParser <|> tupleParser
-        connectableB = connectableA
+  where
+    connectableA = groupParser <|> embellishParser <|> dotParser <|> listParser <|> tupleParser
+    connectableB = connectableA
 
 embellishParser :: Parser Visual
 embellishParser = Embellish <$> (embellish4 <|> embellish3 <|> embellish2 <|> embellish1) <?> "no embellish"

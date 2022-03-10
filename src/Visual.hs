@@ -54,44 +54,45 @@ renderSvg blobble@Blobble{..} = \case
     Connect xs ->
         let blobbles = split (length xs) blobble
             zipped = zip blobbles xs
-         in trace (show blobbles) foldMap
+         in trace
+                (show blobbles)
+                foldMap
                 (uncurry renderSvg)
                 zipped
-            <> connectLines zipped
+                <> connectLines zipped
 
 split :: Int -> Blobble -> [Blobble]
 split n parent =
-    if n < 2 then [parent]
-    else
-        fmap (foo parent n) [ 1 .. n ]
-    where
-        foo :: Blobble -> Int -> Int -> Blobble
-        foo Blobble{..} total idx =
-            let r' = r
-                c = if idx == 1 then 0 else r'
-                n = fromIntegral total
-                w' = (w - 3 * n * r + 3 * r ) / n
-            in Blobble {
-                x = x + ((r' + w' + r' + c) * fromIntegral (pred idx)),
-                y = y,
-                r = r,
-                w = w'
-            }
-
+    if n < 2
+        then [parent]
+        else fmap (foo parent n) [1 .. n]
+  where
+    foo :: Blobble -> Int -> Int -> Blobble
+    foo Blobble{..} total idx =
+        let r' = r
+            c = if idx == 1 then 0 else r'
+            n = fromIntegral total
+            w' = (w - 3 * n * r + 3 * r) / n
+         in Blobble
+                { x = x + ((r' + w' + r' + c) * fromIntegral (pred idx))
+                , y = y
+                , r = r
+                , w = w'
+                }
 
 split' :: Int -> Blobble -> [Blobble]
 split' parts super@Blobble{..} =
     if parts < 1
         then []
         else
-            let w' = ( (r + r + w ) / fromIntegral parts - 4 * r)
+            let w' = ((r + r + w) / fromIntegral parts - 4 * r)
              in mkBlobble super w' <$> [0 .. pred parts]
   where
     mkBlobble :: Blobble -> Float -> Int -> Blobble
     mkBlobble Blobble{..} myW i =
         Blobble
             { r = r
-            , x = x + fromIntegral i * ( myW + 4 * r )
+            , x = x + fromIntegral i * (myW + 4 * r)
             , w = myW
             , y = y
             }
@@ -101,15 +102,15 @@ connectLines [b1, b2] = path_ [D_ <<- rightEdge mA b1 <> leftEdge lA b2, Stroke_
 connectLines (b1 : xs) =
     case uncons xs of
         Nothing -> mempty
-        Just (t, xs') ->  connectLines [b1, t] <> connectLines ( t : xs' )
+        Just (t, xs') -> connectLines [b1, t] <> connectLines (t : xs')
 connectLines _ = mempty
 
 rightEdge :: (Float -> Float -> Text) -> (Blobble, Visual) -> Text
-rightEdge svgOp (Blobble{..}, Dot _) = svgOp (x + r + ( w / 2 )) (y + r)
-rightEdge svgOp (Blobble{..}, _) = svgOp (x + w + ( 2 * r )) (y + r)
+rightEdge svgOp (Blobble{..}, Dot _) = svgOp (x + r + (w / 2)) (y + r)
+rightEdge svgOp (Blobble{..}, _) = svgOp (x + w + (2 * r)) (y + r)
 
 leftEdge :: (Float -> Float -> Text) -> (Blobble, Visual) -> Text
-leftEdge svgOp (Blobble{..}, Dot _) = svgOp (x + r + ( w / 2 ) ) (y + r)
+leftEdge svgOp (Blobble{..}, Dot _) = svgOp (x + r + (w / 2)) (y + r)
 leftEdge svgOp (Blobble{..}, _) = svgOp x (y + r)
 
 cT :: Float -> Text
@@ -117,4 +118,3 @@ cT = T.pack . show
 
 shrink :: Blobble -> Blobble
 shrink Blobble{..} = Blobble{x = x + 8, y = y + 8, w = w - 1, r = r - 8}
-

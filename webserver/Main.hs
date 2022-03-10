@@ -15,13 +15,13 @@ import qualified Parser
 import qualified Visual
 import Web.Scotty
 
+import Data.String (IsString)
 import System.Environment (lookupEnv)
 import System.IO (
     BufferMode (LineBuffering),
     hSetBuffering,
     stdout,
  )
-import Data.String (IsString)
 
 -- heroku provides PORT
 readPort :: IO Int
@@ -74,10 +74,12 @@ main = do
                 hoogleRes
 
 newtype Expr = Expr Text
-    deriving stock (Eq, Show) deriving newtype IsString
+    deriving stock (Eq, Show)
+    deriving newtype (IsString)
 
 newtype Content = Content Text
-    deriving stock (Eq, Show) deriving newtype IsString
+    deriving stock (Eq, Show)
+    deriving newtype (IsString)
 
 type Html = Text
 
@@ -111,7 +113,8 @@ htmlForm (Expr expr) =
     |]
 
 credits :: Html
-credits = fromStrict
-    [NI.text|
+credits =
+    fromStrict
+        [NI.text|
         <p class="credits">Created by <a href="https://twitter.com/SjurMillidahl">Sjur Millidahl</a>, published at <a href="https://github.com/mariatsji/signature-visualizer">GitHub</a></p>
     |]

@@ -1,4 +1,4 @@
-module Hoogle(search) where
+module Hoogle (search) where
 
 import Data.Aeson (FromJSON, eitherDecode)
 
@@ -8,8 +8,8 @@ import qualified Data.Text as T
 import GHC.Generics
 import qualified NeatInterpolation as NI
 import Network.HTTP.Client
-import Network.HTTP.Types.Status (statusCode)
 import Network.HTTP.Client.TLS (tlsManagerSettings)
+import Network.HTTP.Types.Status (statusCode)
 
 newtype HoogleRes = HoogleRes
     { item :: Text
@@ -26,7 +26,7 @@ search manager needle = do
         \responseBodyR -> do
             bs <- responseBody responseBodyR
             case eitherDecode @([HoogleRes]) (fromStrict bs) of
-                Right (HoogleRes{..}:_) -> pure $ Right item
+                Right (HoogleRes{..} : _) -> pure $ Right item
                 Right [] -> pure $ Left "no results"
                 Left s -> pure $ Left s
 
