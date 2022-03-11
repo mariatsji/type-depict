@@ -3,10 +3,11 @@ module Visual where
 import Data.List (uncons)
 import Data.Text (Text)
 import qualified Data.Text as T
-
 import Data.Foldable (fold)
+import Data.Word
 import Debug.Trace
 import Graphics.Svg
+import Numeric (showHex)
 
 data Visual
     = Fix Visual
@@ -118,3 +119,13 @@ cT = T.pack . show
 
 shrink :: Blobble -> Blobble
 shrink Blobble{..} = Blobble{x = x + 8, y = y + 8, w = w - 1, r = r - 8}
+
+data Color = Color {_r :: Word8, _g :: Word8, _b :: Word8} deriving stock (Eq)
+
+hex :: Color -> Text
+hex Color{..} = "#" <> foldMap showHex2 [_r, _g, _b ]
+    where showHex2 :: forall a. (Integral a, Show a) => a -> Text
+          showHex2 a = T.pack $ if a < 17 then "0" <> showHex a "" else showHex a ""
+
+newColor :: [Color]
+newColor = cycle [Color 0 0 255, Color 255 0 0, Color 0 255 0, Color 255 255 0, Color 0 255 255, Color 255 0 255, Color 0 0 0]
