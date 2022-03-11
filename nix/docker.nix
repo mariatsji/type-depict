@@ -13,6 +13,7 @@ in with nixpkgs; dockerTools.buildLayeredImage {
   # runtime system deps  and binary tools in the docker image goes here
   contents = [
     artifact
+    cacert
     libiconv
     libffi
     gmp
