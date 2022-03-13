@@ -35,7 +35,9 @@ library
         http-types,
         neat-interpolation,
         svg-builder,
-        text
+        text,
+        transformers,
+        unordered-containers
     exposed-modules:
         Hoogle
         Visual
@@ -57,7 +59,8 @@ executable signature-visualizer
         base ^>=4.14.3.0,
         signature-visualizer,
         svg-builder,
-        text
+        text,
+        transformers
     hs-source-dirs:   app
     default-language: Haskell2010
     default-extensions:
@@ -78,6 +81,7 @@ executable signature-visualizer-webserver
         signature-visualizer,
         svg-builder,
         text,
+        transformers,
         scotty
     hs-source-dirs:   webserver
     default-language: Haskell2010

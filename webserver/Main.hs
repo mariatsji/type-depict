@@ -1,6 +1,7 @@
 module Main where
 
 import Control.Monad.IO.Class (liftIO)
+import qualified Control.Monad.Trans.State.Lazy as State
 import Data.Foldable (fold)
 import qualified Data.Text as StrictText
 import Data.Text.Lazy (Text, fromStrict, toStrict)
@@ -55,8 +56,10 @@ main = do
             case Parser.parse (traceShowId txt) of
                 Left _ -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, expression did not parse</p>")
                 Right vis -> do
-                    let svg = doctype <> with (svg11_ (Visual.renderSvg blobble vis)) container
-                    html (mainHtml (Expr . fromStrict $ txt) (Content $ prettyText svg))
+                    let s = Visual.renderSvg blobble vis
+                        svg = State.evalState s Visual.initEnv
+                        res = doctype <> with (svg11_ svg) container
+                    html (mainHtml (Expr . fromStrict $ txt) (Content $ prettyText res))
         post "/hoogle" $ do
             liftIO $ putStrLn "hoogle"
             needleP <- param "signature"
@@ -68,7 +71,9 @@ main = do
                     case Parser.parse (traceShowId txt) of
                         Left _ -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, hoogle-result did not parse</p>")
                         Right vis -> do
-                            let svg = doctype <> with (svg11_ (Visual.renderSvg blobble vis)) container
+                            let s = Visual.renderSvg blobble vis
+                                svg = State.evalState s Visual.initEnv
+                                res = doctype <> with (svg11_ svg) container
                             html (mainHtml (Expr . fromStrict $ txt) (Content $ prettyText svg))
                 )
                 hoogleRes

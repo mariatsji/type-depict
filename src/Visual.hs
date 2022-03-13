@@ -1,9 +1,12 @@
 module Visual where
 
+import Control.Monad.Trans.State.Lazy
+import Data.Foldable (fold)
+import Data.HashMap.Lazy
 import Data.List (uncons)
+import Data.Maybe (fromMaybe)
 import Data.Text (Text)
 import qualified Data.Text as T
-import Data.Foldable (fold)
 import Data.Word
 import Debug.Trace
 import Graphics.Svg
@@ -36,31 +39,61 @@ data Blobble = Blobble
     }
     deriving (Show)
 
-renderSvg :: Blobble -> Visual -> Element
+data Color = Color {_r :: Word8, _g :: Word8, _b :: Word8} deriving stock (Eq)
+
+data Env = Env
+    { colors :: HashMap String Color
+    , idx :: Int
+    }
+
+initEnv :: Env
+initEnv =
+    Env
+        { colors = mempty
+        , idx = 0
+        }
+
+renderSvg :: Blobble -> Visual -> State Env Element
 renderSvg blobble@Blobble{..} = \case
-    Dot _ ->
-        let mid = x + r + w / 2
-         in circle_ [Cx_ <<- cT mid, Cy_ <<- cT (y + r), R_ <<- "5", Fill_ <<- "black"]
-    Embellish a ->
+    Dot word -> do
+        s@Env{..} <- get
+        let (newEnv, c) = case Data.HashMap.Lazy.lookup word colors of
+                Nothing -> (s{colors = Data.HashMap.Lazy.insert word c colors, idx = succ idx}, newColor !! idx)
+                Just c -> (s, c)
+            mid = x + r + w / 2
+            el = circle_ [Cx_ <<- cT mid, Cy_ <<- cT (y + r), R_ <<- "5", Fill_ <<- hex c]
+        put newEnv >> pure el
+    Embellish a -> do
         let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3"]
-         in rect <> renderSvg (shrink blobble) a
-    Group a ->
+        el <- renderSvg (shrink blobble) a
+        pure $ rect <> el
+    Group a -> do
         let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3", Stroke_dasharray_ <<- "4"]
-         in trace (show blobble) $ rect <> renderSvg (shrink blobble) a
-    Fix a ->
-        renderSvg blobble (Embellish a)
-            <> path_ [D_ <<- mA (x + r + w / 2 + 20) (y + 2 * r) <> lR (-20) 20, Stroke_ <<- "black", Stroke_width_ <<- "3"]
-            <> path_ [D_ <<- mA (x + r + w / 2 + 20) (y + 2 * r) <> lR (-20) (-20), Stroke_ <<- "black", Stroke_width_ <<- "3"]
-            <> renderSvg (shrink blobble) a
-    Connect xs ->
+        el <- renderSvg (shrink blobble) a
+        pure $ rect <> el
+    Fix a -> do
+        let arr =
+                path_ [D_ <<- mA (x + r + w / 2 + 20) (y + 2 * r) <> lR (-20) 20, Stroke_ <<- "black", Stroke_width_ <<- "3"]
+                    <> path_ [D_ <<- mA (x + r + w / 2 + 20) (y + 2 * r) <> lR (-20) (-20), Stroke_ <<- "black", Stroke_width_ <<- "3"]
+        el <- renderSvg blobble (Embellish a)
+        el2 <- renderSvg (shrink blobble) a
+        pure $ el <> el2 <> arr
+    Connect xs -> do
         let blobbles = split (length xs) blobble
             zipped = zip blobbles xs
-         in trace
-                (show blobbles)
-                foldMap
-                (uncurry renderSvg)
-                zipped
-                <> connectLines zipped
+            lines = connectLines zipped
+        --s<- get
+        Prelude.foldr
+            foo
+            (pure lines :: State Env Element)
+            zipped
+
+foo :: (Blobble, Visual) -> State Env Element -> State Env Element
+foo (b, vis) s = do
+    envA <- get
+    let el = evalState s envA
+    el2 <- renderSvg b vis
+    pure $ el <> el2
 
 split :: Int -> Blobble -> [Blobble]
 split n parent =
@@ -120,12 +153,11 @@ cT = T.pack . show
 shrink :: Blobble -> Blobble
 shrink Blobble{..} = Blobble{x = x + 8, y = y + 8, w = w - 1, r = r - 8}
 
-data Color = Color {_r :: Word8, _g :: Word8, _b :: Word8} deriving stock (Eq)
-
 hex :: Color -> Text
-hex Color{..} = "#" <> foldMap showHex2 [_r, _g, _b ]
-    where showHex2 :: forall a. (Integral a, Show a) => a -> Text
-          showHex2 a = T.pack $ if a < 17 then "0" <> showHex a "" else showHex a ""
+hex Color{..} = "#" <> foldMap showHex2 [_r, _g, _b]
+  where
+    showHex2 :: forall a. (Integral a, Show a) => a -> Text
+    showHex2 a = T.pack $ if a < 17 then "0" <> showHex a "" else showHex a ""
 
 newColor :: [Color]
 newColor = cycle [Color 0 0 255, Color 255 0 0, Color 0 255 0, Color 255 255 0, Color 0 255 255, Color 255 0 255, Color 0 0 0]
