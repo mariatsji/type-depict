@@ -96,10 +96,10 @@ split :: Int -> Blobble -> [Blobble]
 split n parent =
     if n < 2
         then [parent]
-        else fmap (foo parent n) [1 .. n]
+        else fmap (go parent n) [1 .. n]
   where
-    foo :: Blobble -> Int -> Int -> Blobble
-    foo Blobble{..} total idx =
+    go :: Blobble -> Int -> Int -> Blobble
+    go Blobble{..} total idx =
         let r' = r
             c = if idx == 1 then 0 else r'
             n = fromIntegral total
@@ -110,23 +110,6 @@ split n parent =
                 , r = r
                 , w = w'
                 }
-
-split' :: Int -> Blobble -> [Blobble]
-split' parts super@Blobble{..} =
-    if parts < 1
-        then []
-        else
-            let w' = ((r + r + w) / fromIntegral parts - 4 * r)
-             in mkBlobble super w' <$> [0 .. pred parts]
-  where
-    mkBlobble :: Blobble -> Float -> Int -> Blobble
-    mkBlobble Blobble{..} myW i =
-        Blobble
-            { r = r
-            , x = x + fromIntegral i * (myW + 4 * r)
-            , w = myW
-            , y = y
-            }
 
 connectLines :: [(Blobble, Visual)] -> Element
 connectLines [b1, b2] = path_ [D_ <<- rightEdge mA b1 <> leftEdge lA b2, Stroke_ <<- "black", Stroke_width_ <<- "4"]
