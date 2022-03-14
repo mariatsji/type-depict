@@ -33,7 +33,7 @@ container :: [Attribute]
 container = [Version_ <<- "1.1", Width_ <<- "2000", Height_ <<- "300"]
 
 blobble :: Visual.Blobble
-blobble = Visual.Blobble{x = 5, y = 5, w = 1000, r = 40}
+blobble = Visual.Blobble{x = 5, y = 5, w = 600, r = 40}
 
 main :: IO ()
 main = do
