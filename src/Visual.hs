@@ -1,11 +1,15 @@
-{-# language TypeSynonymInstances, FlexibleInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE TypeSynonymInstances #-}
 
 module Visual where
 
 import Control.Monad.Trans.State.Lazy
 import Data.Foldable (fold)
+import Data.Functor (($>))
 import Data.HashMap.Lazy
 import Data.List (uncons)
+import Data.List.NonEmpty (NonEmpty)
+import qualified Data.List.NonEmpty as NE
 import Data.Maybe (fromMaybe)
 import Data.Monoid
 import Data.Text (Text)
@@ -14,19 +18,18 @@ import Data.Word
 import Debug.Trace
 import Graphics.Svg
 import Numeric (showHex)
-import Data.Functor (($>))
 
 data Visual
     = Fix Visual
     | Connect [Visual]
     | Embellish Visual
     | Group Visual
-    | Dot String
+    | Dot (NonEmpty String)
     deriving stock (Eq)
 
 render :: Visual -> Text
 render = \case
-    Dot _ -> "."
+    Dot xs -> T.pack $ '.' <$ NE.toList xs
     Connect xs -> T.intercalate "--" $ fmap render xs
     Embellish a -> "(" <> render a <> ")"
     Fix a -> "@" <> render a
@@ -59,14 +62,22 @@ initEnv =
 
 renderSvg :: Blobble -> Visual -> State Env Element
 renderSvg blobble@Blobble{..} = \case
-    Dot word -> do
-        s@Env{..} <- get
-        let (newEnv, c) = case Data.HashMap.Lazy.lookup word colors of
-                Nothing -> (s{colors = Data.HashMap.Lazy.insert word c colors, idx = succ idx}, newColor !! idx)
-                Just c -> (s, c)
-            mid = x + r + w / 2
-            el = circle_ [Cx_ <<- cT mid, Cy_ <<- cT (y + r), R_ <<- "5", Fill_ <<- hex c]
-        put newEnv $> el
+    Dot words -> do
+        let ys = dotV words blobble
+            zipped = NE.zip words ys
+            elemStates =
+                traverse
+                    ( \(word, y') -> do
+                        s@Env{..} <- get
+                        let (newEnv, c) = case Data.HashMap.Lazy.lookup word colors of
+                                Nothing -> (s{colors = Data.HashMap.Lazy.insert word c colors, idx = succ idx}, newColor !! idx)
+                                Just c -> (s, c)
+                            midX = x + r + w / 2
+                            el = circle_ [Cx_ <<- cT midX, Cy_ <<- cT y', R_ <<- "5", Fill_ <<- hex c]
+                        put newEnv $> el
+                    )
+                    zipped
+        mconcat . NE.toList <$> elemStates
     Embellish a -> do
         let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3"]
         el <- renderSvg (shrink blobble) a
@@ -88,9 +99,17 @@ renderSvg blobble@Blobble{..} = \case
             lines = connectLines zipped
             res =
                 traverse
-                (uncurry renderSvg)
-                zipped
+                    (uncurry renderSvg)
+                    zipped
         mconcat . (lines :) <$> res
+
+dotV :: NonEmpty String -> Blobble -> NonEmpty Float -- get y coords
+dotV dots blob = go blob <$> NE.zip (NE.fromList [1 .. length dots]) dots
+  where
+    go :: Blobble -> (Int, String) -> Float
+    go Blobble{..} (i, _) =
+        let op = if odd i then (+) else (-)
+         in r + y `op` (fromIntegral i * 6)
 
 split :: Int -> Blobble -> [Blobble]
 split n parent =

@@ -1,11 +1,15 @@
+{-# language OverloadedLists #-}
 module Parser where
 
 import Control.Applicative ((<|>))
-import Data.Attoparsec.Text (Parser, (<?>))
+import Data.Attoparsec.Text (Parser)
 import qualified Data.Attoparsec.Text as A
+import qualified Data.List.NonEmpty as NE
+import Data.List.NonEmpty (NonEmpty((:|)))
 import Data.Text (Text)
 import qualified Data.Text as T
 import Visual
+import Data.Text.Encoding (decodeUtf32BE)
 
 parse :: Text -> Either String Visual
 parse = A.parseOnly visParser . strip
@@ -50,7 +54,7 @@ connectParser = do
     connectableB = connectableA
 
 embellishParser :: Parser Visual
-embellishParser = Embellish <$> (embellish4 <|> embellish3 <|> embellish2 <|> embellish1) <?> "no embellish"
+embellishParser = Embellish <$> (embellish4 <|> embellish3 <|> embellish2 <|> embellish1)
   where
     embellish1 = wordspace >> embellishable
     embellish2 = wordspace >> wordspace >> embellishable
@@ -96,4 +100,26 @@ groupParser =
     groupable = fixParser <|> connectParser <|> embellishParser <|> dotParser <|> listParser
 
 dotParser :: Parser Visual
-dotParser = Dot <$> word
+dotParser = dot1 <|> dot2 <|> dot3 <|> dot4
+    where dot1 = Dot . (:| []) <$> word
+          dot2 = do
+              w1 <- word
+              _ <- A.many' A.space
+              w2 <- word
+              pure $ Dot [w1, w2]
+          dot3 = do
+              w1 <- word
+              _ <- A.many' A.space
+              w2 <- word
+              _ <- A.many' A.space
+              w3 <- word
+              pure $ Dot [w1, w2, w3]
+          dot4 = do
+              w1 <- word
+              _ <- A.many' A.space
+              w2 <- word
+              _ <- A.many' A.space
+              w3 <- word
+              _ <- A.many' A.space
+              w4 <- word
+              pure $ Dot [w1, w2, w3, w4]
