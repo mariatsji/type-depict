@@ -1,3 +1,5 @@
+{-# language TypeSynonymInstances, FlexibleInstances #-}
+
 module Visual where
 
 import Control.Monad.Trans.State.Lazy
@@ -5,12 +7,14 @@ import Data.Foldable (fold)
 import Data.HashMap.Lazy
 import Data.List (uncons)
 import Data.Maybe (fromMaybe)
+import Data.Monoid
 import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Word
 import Debug.Trace
 import Graphics.Svg
 import Numeric (showHex)
+import Data.Functor (($>))
 
 data Visual
     = Fix Visual
@@ -62,7 +66,7 @@ renderSvg blobble@Blobble{..} = \case
                 Just c -> (s, c)
             mid = x + r + w / 2
             el = circle_ [Cx_ <<- cT mid, Cy_ <<- cT (y + r), R_ <<- "5", Fill_ <<- hex c]
-        put newEnv >> pure el
+        put newEnv $> el
     Embellish a -> do
         let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3"]
         el <- renderSvg (shrink blobble) a
@@ -82,18 +86,11 @@ renderSvg blobble@Blobble{..} = \case
         let blobbles = split (length xs) blobble
             zipped = zip blobbles xs
             lines = connectLines zipped
-        --s<- get
-        Prelude.foldr
-            foo
-            (pure lines :: State Env Element)
-            zipped
-
-foo :: (Blobble, Visual) -> State Env Element -> State Env Element
-foo (b, vis) s = do
-    envA <- get
-    let el = evalState s envA
-    el2 <- renderSvg b vis
-    pure $ el <> el2
+            res =
+                traverse
+                (uncurry renderSvg)
+                zipped
+        mconcat . (lines :) <$> res
 
 split :: Int -> Blobble -> [Blobble]
 split n parent =

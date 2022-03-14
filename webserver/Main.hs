@@ -74,7 +74,7 @@ main = do
                             let s = Visual.renderSvg blobble vis
                                 svg = State.evalState s Visual.initEnv
                                 res = doctype <> with (svg11_ svg) container
-                            html (mainHtml (Expr . fromStrict $ txt) (Content $ prettyText svg))
+                            html (mainHtml (Expr . fromStrict $ txt) (Content $ prettyText res))
                 )
                 hoogleRes
 
