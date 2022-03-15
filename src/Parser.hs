@@ -53,15 +53,18 @@ connectParser = do
     connectableB = connectableA
 
 embellishParser :: Parser Visual
-embellishParser = Embellish <$> embellish1
+embellishParser = do
+    w <- wordspace
+    e <- embellishable
+    pure $ Embellish (Just w) e
   where
     embellish1 = wordspace >> embellishable
     embellishable = groupParser <|> dotParser <|> connectParser <|> listParser <|> tupleParser
-    wordspace = word >> A.space
+    wordspace = word <* A.space
 
 listParser :: Parser Visual
 listParser =
-    Embellish <$> do
+    Embellish Nothing <$> do
         _ <- A.char '[' *> A.many' A.space
         x <- listable
         _ <- A.many' A.space <* A.char ']'
@@ -74,7 +77,7 @@ word = A.many1 A.letter
 
 tupleParser :: Parser Visual
 tupleParser =
-    Embellish
+    Embellish Nothing
         <$> ( A.skipSpace
                 *> A.char '('
                 *> A.skipSpace

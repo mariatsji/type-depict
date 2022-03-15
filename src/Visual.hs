@@ -22,7 +22,7 @@ import Numeric (showHex)
 data Visual
     = Fix Visual
     | Connect [Visual]
-    | Embellish Visual
+    | Embellish (Maybe String) Visual
     | Group Visual
     | Dot (NonEmpty String)
     deriving stock (Eq)
@@ -31,7 +31,7 @@ render :: Visual -> Text
 render = \case
     Dot xs -> T.pack $ '.' <$ NE.toList xs
     Connect xs -> T.intercalate "--" $ fmap render xs
-    Embellish a -> "(" <> render a <> ")"
+    Embellish _ a -> "(" <> render a <> ")"
     Fix a -> "@" <> render a
     Group a -> "{" <> render a <> "}"
 
@@ -78,10 +78,17 @@ renderSvg blobble@Blobble{..} = \case
                     )
                     zipped
         mconcat . NE.toList <$> elemStates
-    Embellish a -> do
-        let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3"]
+    Embellish ms a -> do
+        s@Env{..} <- get
+        let (newEnv, c) = case ms of
+                Nothing -> (s, Color 0 0 0)
+                Just word -> case HML.lookup word colors of
+                                    Nothing -> (s{colors = HML.insert word c colors, idx = succ idx}, newColor !! idx)
+                                    Just c -> (s, c)
+    
+            rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- hex c, Stroke_width_ <<- "3"]
         el <- renderSvg (shrink blobble) a
-        pure $ rect <> el
+        put newEnv $> rect <> el
     Group a -> do
         let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3", Stroke_dasharray_ <<- "4"]
         el <- renderSvg (shrink blobble) a
@@ -90,7 +97,7 @@ renderSvg blobble@Blobble{..} = \case
         let arr =
                 path_ [D_ <<- mA (x + r + w / 2 + 20) (y + 2 * r) <> lR (-20) 20, Stroke_ <<- "black", Stroke_width_ <<- "3"]
                     <> path_ [D_ <<- mA (x + r + w / 2 + 20) (y + 2 * r) <> lR (-20) (-20), Stroke_ <<- "black", Stroke_width_ <<- "3"]
-        el <- renderSvg blobble (Embellish a)
+        el <- renderSvg blobble (Embellish Nothing a)
         el2 <- renderSvg (shrink blobble) a
         pure $ el <> el2 <> arr
     Connect xs -> do

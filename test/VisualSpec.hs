@@ -12,7 +12,7 @@ spec = describe "Parser" $ do
     it "should have a working dot parser" $ do
         Parser.parse "a" `shouldBe` Right (Dot ["a"])
     it "should visualize f a as (.)" $ do
-        Parser.parse "f a" `shouldBe` Right (Embellish (Dot ["a"]))
+        Parser.parse "f a" `shouldBe` Right (Embellish (Just "f") (Dot ["a"]))
     it "should visualize >>=" $ do
         fmap Visual.render (Parser.parse "m a -> (a -> m b) -> m b") `shouldBe` Right "(.)--{.--(.)}--(.)"
     it "should visualize fix" $ do
@@ -22,9 +22,9 @@ spec = describe "Parser" $ do
     it "should allow explicit existential quantification with forall keyword" $ do
         Parser.parse "forall a b. a -> b" `shouldBe` Right (Connect [Dot ["a"], Dot ["b"]])
     it "should tolerate forall and contraints in forall a b. Functor f => f a" $ do
-        Parser.parse "forall a b. Functor f => f a" `shouldBe` Right (Embellish (Dot ["a"]))
+        Parser.parse "forall a b. Functor f => f a" `shouldBe` Right (Embellish (Just "f") (Dot ["a"]))
     it "should tolerate a function name in pure :: forall a b. Functor f => f a" $ do
-        Parser.parse "pure :: forall a b. Functor f => f a" `shouldBe` Right (Embellish (Dot ["a"]))
+        Parser.parse "pure :: forall a b. Functor f => f a" `shouldBe` Right (Embellish (Just "f") (Dot ["a"]))
     it "should tolerate only function name in f :: a" $ do
         Parser.parse "f :: a" `shouldBe` Right (Dot ["a"])
     it "should accept non-polymorphic types  maybe :: Decoder a -> Decoder (Maybe a)" $ do
@@ -34,7 +34,7 @@ spec = describe "Parser" $ do
     it "understand e.g. non-polymorphic Either functions either :: (String -> Text) -> (Int -> Float) -> Either String Int -> Text" $ do
         fmap Visual.render (Parser.parse "either :: (String -> Text) -> (Int -> Float) -> Either String Int -> Text") `shouldBe` Right "{.--.}--{.--.}--(..)--."
     it "understand lists as embellishments" $ do
-        Parser.parse "[a]" `shouldBe` Right (Embellish (Dot ["a"]))
+        Parser.parse "[a]" `shouldBe` Right (Embellish Nothing (Dot ["a"]))
     it "understands applicative" $ do
         fmap Visual.render (Parser.parse "f ( a -> b ) -> f a -> f b") `shouldBe` Right "({.--.})--(.)--(.)"
     it "understand complicated list embellishments" $ do
