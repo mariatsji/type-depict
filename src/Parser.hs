@@ -54,12 +54,9 @@ connectParser = do
     connectableB = connectableA
 
 embellishParser :: Parser Visual
-embellishParser = Embellish <$> (embellish4 <|> embellish3 <|> embellish2 <|> embellish1)
+embellishParser = Embellish <$> embellish1
   where
     embellish1 = wordspace >> embellishable
-    embellish2 = wordspace >> wordspace >> embellishable
-    embellish3 = wordspace >> wordspace >> wordspace >> embellishable
-    embellish4 = wordspace >> wordspace >> wordspace >> wordspace >> embellishable
     embellishable = groupParser <|> dotParser <|> connectParser <|> listParser <|> tupleParser
     wordspace = word >> A.space
 

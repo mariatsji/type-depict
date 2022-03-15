@@ -18,7 +18,7 @@ spec = describe "Parser" $ do
     it "should visualize fix" $ do
         Parser.parse "(a -> a) -> a" `shouldBe` Right (Fix (Dot ["a"]))
     it "should visualize bitraverse" $ do
-        fmap Visual.render (Parser.parse "(a -> f c) -> (b -> f d) -> t a b -> f (t c d)") `shouldBe` Right "{.--(.)}--{.--(.)}--(.)--({(.)})"
+        fmap Visual.render (Parser.parse "(a -> f c) -> (b -> f d) -> t a b -> f (t c d)") `shouldBe` Right "{.--(.)}--{.--(.)}--(..)--({(..)})"
     it "should allow explicit existential quantification with forall keyword" $ do
         Parser.parse "forall a b. a -> b" `shouldBe` Right (Connect [Dot ["a"], Dot ["b"]])
     it "should tolerate forall and contraints in forall a b. Functor f => f a" $ do
@@ -32,7 +32,7 @@ spec = describe "Parser" $ do
     it "should accept non-polymorphic types in e.g. String -> String" $ do
         Parser.parse "String -> String" `shouldBe` Right (Connect [Dot ["String"], Dot ["String"]])
     it "understand e.g. non-polymorphic Either functions either :: (String -> Text) -> (Int -> Float) -> Either String Int -> Text" $ do
-        fmap Visual.render (Parser.parse "either :: (String -> Text) -> (Int -> Float) -> Either String Int -> Text") `shouldBe` Right "{.--.}--{.--.}--(.)--."
+        fmap Visual.render (Parser.parse "either :: (String -> Text) -> (Int -> Float) -> Either String Int -> Text") `shouldBe` Right "{.--.}--{.--.}--(..)--."
     it "understand lists as embellishments" $ do
         Parser.parse "[a]" `shouldBe` Right (Embellish (Dot ["a"]))
     it "understands applicative" $ do
