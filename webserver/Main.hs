@@ -49,6 +49,9 @@ main = do
         get "/style.css" $ do
             setHeader "Content-Type" "text/css; charset=utf-8"
             file "assets/style.css"
+        get "/favicon.ico" $ do
+            setHeader "Content-Type" "image/vnd.microsoft.icon" 
+            file "assets/favicon.ico"
         post "/submit" $ do
             liftIO $ putStrLn "submit"
             expression <- param "signature"
@@ -102,7 +105,7 @@ htmlHead =
         ]
 
 htmlBody :: Expr -> Content -> Html
-htmlBody expr (Content content) = fold ["<body>", "<h1>", "Haskell Expression Visualizer", "</h1>", htmlForm expr, content, credits, "</body>"]
+htmlBody expr (Content content) = fold ["<body>", "<h1>", "Haskell Type Visualizer", "</h1>", htmlForm expr, content, credits, "</body>"]
 
 htmlForm :: Expr -> Html
 htmlForm (Expr expr) =

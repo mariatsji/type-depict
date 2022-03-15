@@ -18,3 +18,13 @@ main = do
         svg = evalState s initEnv
         res = doctype <> with (svg11_ svg) container
     renderToFile "index.html" res
+
+favicon :: IO ()
+favicon = do
+    let (Right visual) = Parser.parse "( f a b -> f a b ) -> f a b"
+        container = [Version_ <<- "1.1", Width_ <<- "100", Height_ <<- "100"]
+        blobble = Blobble{x = 5, y = 5, w = 5, r = 30}
+        s = renderSvg blobble visual
+        svg = evalState s initEnv
+        res = doctype <> with (svg11_ svg) container
+    renderToFile "assets/favicon.svg" res
