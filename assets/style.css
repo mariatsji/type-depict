@@ -1,8 +1,5 @@
 * {
     font-family: American Typewriter, serif;
-    margin-top: 16px;
-    margin-right: 16px;
-    margin-bottom: 16px;
     margin-left: 16px;
 }
 body {
@@ -10,6 +7,17 @@ body {
 }
 a {
     margin: 0px;
+}
+form {
+    margin-top: 16px;
+    margin-left: 0px;
+}
+svg {
+    margin-top: 32px;
+}
+.air {
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 .red {
     color: red;

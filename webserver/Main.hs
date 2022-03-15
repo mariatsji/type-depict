@@ -30,7 +30,7 @@ readPort = do
     maybe 3000 (read @Int) <$> lookupEnv "PORT"
 
 container :: [Attribute]
-container = [Version_ <<- "1.1", Width_ <<- "2000", Height_ <<- "300"]
+container = [Version_ <<- "1.1", Width_ <<- "800", Height_ <<- "200"]
 
 blobble :: Visual.Blobble
 blobble = Visual.Blobble{x = 5, y = 5, w = 600, r = 40}
@@ -45,7 +45,8 @@ main = do
     putStrLn "scotty webserver going up"
     scotty port $ do
         get "/" $ do
-            html $ mainHtml "(a -> m b) -> m a -> m b" ""
+            let cnt = doctype <> with (svg11_ mempty) container
+            html ( mainHtml "(a -> m b) -> m a -> m b" (Content $ prettyText cnt) )
         get "/style.css" $ do
             setHeader "Content-Type" "text/css; charset=utf-8"
             file "assets/style.css"
@@ -114,7 +115,7 @@ htmlForm (Expr expr) =
             [NI.text|
          <form action="/submit" method="post">
             <label for="signature">Haskell Type Signature</label><br>
-            <input type="text" id="signature" name="signature" size="90" autocomplete="off" value="$strictT"><br>
+            <input type="text" id="signature" name="signature" class="air" size="90" autocomplete="off" value="$strictT"><br>
             <button type="submit" class="bluebg">Visualize</button>
             <button type="submit" class="greenbg" formaction="/hoogle">Hoogle</button>
         </form> 
