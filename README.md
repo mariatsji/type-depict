@@ -7,4 +7,4 @@ That is, it can draw a visualization of a Haskell type
 ![visualizations](https://github.com/mariatsji/signature-visualizer/blob/main/doc/Visual.png?raw=true)
 
 ## Known limitations:
-Cant parse PolyKinds signatures
+Cant parse PolyKinds or FunDeps signatures

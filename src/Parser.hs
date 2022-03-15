@@ -1,4 +1,3 @@
-{-# language OverloadedLists #-}
 module Parser where
 
 import Control.Applicative ((<|>))

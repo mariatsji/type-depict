@@ -1,14 +1,14 @@
 {-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE TypeSynonymInstances #-}
 
 module Visual where
 
 import Control.Monad.Trans.State.Lazy
 import Data.Foldable (fold)
 import Data.Functor (($>))
-import Data.HashMap.Lazy
+import Data.HashMap.Lazy ( HashMap )
+import qualified Data.HashMap.Lazy as HML
 import Data.List (uncons)
-import Data.List.NonEmpty (NonEmpty)
+import Data.List.NonEmpty (NonEmpty ((:|)))
 import qualified Data.List.NonEmpty as NE
 import Data.Maybe (fromMaybe)
 import Data.Monoid
@@ -63,14 +63,14 @@ initEnv =
 renderSvg :: Blobble -> Visual -> State Env Element
 renderSvg blobble@Blobble{..} = \case
     Dot words -> do
-        let ys = dotV words blobble
+        let ys = dotV blobble
             zipped = NE.zip words ys
             elemStates =
                 traverse
                     ( \(word, y') -> do
                         s@Env{..} <- get
-                        let (newEnv, c) = case Data.HashMap.Lazy.lookup word colors of
-                                Nothing -> (s{colors = Data.HashMap.Lazy.insert word c colors, idx = succ idx}, newColor !! idx)
+                        let (newEnv, c) = case HML.lookup word colors of
+                                Nothing -> (s{colors = HML.insert word c colors, idx = succ idx}, newColor !! idx)
                                 Just c -> (s, c)
                             midX = x + r + w / 2
                             el = circle_ [Cx_ <<- cT midX, Cy_ <<- cT y', R_ <<- "5", Fill_ <<- hex c]
@@ -103,13 +103,11 @@ renderSvg blobble@Blobble{..} = \case
                     zipped
         mconcat . (lines :) <$> res
 
-dotV :: NonEmpty String -> Blobble -> NonEmpty Float -- get y coords
-dotV dots blob = go blob <$> NE.zip (NE.fromList [0 .. length dots]) dots
-  where
-    go :: Blobble -> (Int, String) -> Float
-    go Blobble{..} (i, _) =
-        let op = if odd i then (+) else (-)
-         in r + y `op` (fromIntegral i * 6)
+dotV :: Blobble -> NonEmpty Float -- get y coords
+dotV Blobble{..} = 
+    let factors = 0 : ([1 .. ] >>= (\i -> [i,i])) :: [Float]
+        gameplan = zip (cycle [\f -> r + y + f * 6, \f -> r + y - f * 6]) factors
+    in NE.fromList $ (\(f, a) -> f a) <$> gameplan
 
 split :: Int -> Blobble -> [Blobble]
 split n parent =
