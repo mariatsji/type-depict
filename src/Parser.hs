@@ -100,26 +100,9 @@ groupParser =
     groupable = fixParser <|> connectParser <|> embellishParser <|> dotParser <|> listParser
 
 dotParser :: Parser Visual
-dotParser = dot1 <|> dot2 <|> dot3 <|> dot4
-    where dot1 = Dot . (:| []) <$> word
-          dot2 = do
-              w1 <- word
-              _ <- A.many' A.space
-              w2 <- word
-              pure $ Dot [w1, w2]
-          dot3 = do
-              w1 <- word
-              _ <- A.many' A.space
-              w2 <- word
-              _ <- A.many' A.space
-              w3 <- word
-              pure $ Dot [w1, w2, w3]
-          dot4 = do
-              w1 <- word
-              _ <- A.many' A.space
-              w2 <- word
-              _ <- A.many' A.space
-              w3 <- word
-              _ <- A.many' A.space
-              w4 <- word
-              pure $ Dot [w1, w2, w3, w4]
+dotParser = do
+    ws <- A.many1 $ do
+            _ <- A.skipSpace
+            word
+    pure . Dot . NE.fromList $ ws
+

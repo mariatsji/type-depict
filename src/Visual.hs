@@ -104,7 +104,7 @@ renderSvg blobble@Blobble{..} = \case
         mconcat . (lines :) <$> res
 
 dotV :: NonEmpty String -> Blobble -> NonEmpty Float -- get y coords
-dotV dots blob = go blob <$> NE.zip (NE.fromList [1 .. length dots]) dots
+dotV dots blob = go blob <$> NE.zip (NE.fromList [0 .. length dots]) dots
   where
     go :: Blobble -> (Int, String) -> Float
     go Blobble{..} (i, _) =
