@@ -25,7 +25,7 @@ strip t =
   where
     dropSignature t' = maybeOnlyAfter t' "::"
     dropConstraints t' = maybeOnlyAfter t' "."
-    dropForall t' = maybeOnlyAfter t' "=>"
+    dropForall t' = maybeOnlyAfter t' " =>"
 
 maybeOnlyAfter :: Text -> Text -> Text
 maybeOnlyAfter t needle = case T.splitOn needle t of

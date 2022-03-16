@@ -67,7 +67,9 @@ renderSvg blobble@Blobble{..} = \case
                     ( \(word, y') -> do
                         s@Env{..} <- get
                         let (newEnv, c) = case HML.lookup word colors of
-                                Nothing -> (s{colors = HML.insert word c colors, idx = succ idx}, newColor !! idx)
+                                Nothing ->
+                                    let pickedColor = newColor !! idx
+                                    in (s{colors = HML.insert word pickedColor colors, idx = succ idx}, pickedColor)
                                 Just c -> (s, c)
                             midX = x + r + w / 2
                             el = circle_ [Cx_ <<- cT midX, Cy_ <<- cT y', R_ <<- "5", Fill_ <<- hex c]
@@ -80,12 +82,15 @@ renderSvg blobble@Blobble{..} = \case
         let (newEnv, c) = case ms of
                 Nothing -> (s, Color 0 0 0)
                 Just word -> case HML.lookup word colors of
-                                    Nothing -> (s{colors = HML.insert word c colors, idx = succ idx}, newColor !! idx)
+                                    Nothing -> 
+                                        let pickedColor = newColor !! idx
+                                        in (s{colors = HML.insert word pickedColor colors, idx = succ idx}, pickedColor)
                                     Just c' -> (s, c')
     
             rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- hex c, Stroke_width_ <<- "3"]
+        put newEnv -- store new state before recursive call!
         el <- renderSvg (shrink blobble) a
-        put newEnv $> rect <> el
+        pure $ rect <> el
     Group a -> do
         let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3", Stroke_dasharray_ <<- "4"]
         el <- renderSvg (shrink blobble) a
@@ -161,4 +166,4 @@ hex Color{..} = "#" <> foldMap showHex2 [_r, _g, _b]
     showHex2 a = T.pack $ if a < 17 then "0" <> showHex a "" else showHex a ""
 
 newColor :: [Color]
-newColor = cycle [Color 0 0 255, Color 255 0 0, Color 0 255 0, Color 255 255 0, Color 0 255 255, Color 255 0 255, Color 0 0 0]
+newColor = cycle [Color 0 0 0, Color 0 0 255, Color 255 0 0, Color 0 255 0, Color 255 255 0, Color 0 255 255, Color 255 0 255]
