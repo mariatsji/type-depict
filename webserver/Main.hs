@@ -30,7 +30,7 @@ readPort = do
     maybe 3000 (read @Int) <$> lookupEnv "PORT"
 
 container :: [Attribute]
-container = [Version_ <<- "1.1", Width_ <<- "800", Height_ <<- "130"]
+container = [Version_ <<- "1.1", Width_ <<- "800", Height_ <<- "120"]
 
 blobble :: Visual.Blobble
 blobble = Visual.Blobble{x = 3, y = 3, w = 600, r = 40}
@@ -38,7 +38,7 @@ blobble = Visual.Blobble{x = 3, y = 3, w = 600, r = 40}
 main :: IO ()
 main = do
     hSetBuffering stdout LineBuffering
-    manager <- newManager tlsManagerSettings
+    manager <- newManager tlsManagerSettings{managerModifyRequest = \r -> pure $ r{requestHeaders = [("User-Agent", "type-depict.io/0.0.1")]}}
     putStrLn "Hello world, lets see what port"
     port <- readPort
     print port
@@ -46,15 +46,15 @@ main = do
     scotty port $ do
         get "/" $ do
             let cnt = doctype <> with (svg11_ mempty) container
-            html ( mainHtml "(a -> m b) -> m a -> m b" (Content $ prettyText cnt) )
+            html (mainHtml "(a -> m b) -> m a -> m b" (Content $ prettyText cnt))
         post "/" $ do
             let cnt = doctype <> with (svg11_ mempty) container
-            html ( mainHtml "(a -> m b) -> m a -> m b" (Content $ prettyText cnt) )
+            html (mainHtml "(a -> m b) -> m a -> m b" (Content $ prettyText cnt))
         get "/style.css" $ do
             setHeader "Content-Type" "text/css; charset=utf-8"
             file "assets/style.css"
         get "/favicon.ico" $ do
-            setHeader "Content-Type" "image/vnd.microsoft.icon" 
+            setHeader "Content-Type" "image/vnd.microsoft.icon"
             file "assets/favicon.ico"
         post "/submit" $ do
             liftIO $ putStrLn "submit"

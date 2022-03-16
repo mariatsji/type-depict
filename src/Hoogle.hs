@@ -21,8 +21,8 @@ instance FromJSON HoogleRes
 search :: Manager -> Text -> IO (Either String Text)
 search manager needle = do
     let needle' = case T.split (== ' ') needle of
-                        x:_ -> x
-                        _ -> "id"
+            x : _ -> x
+            _ -> "id"
         url = searchUrl needle'
     request <- parseRequest url
     withResponse request manager $ do
@@ -39,6 +39,6 @@ searchUrl t =
 
 testIt :: IO ()
 testIt = do
-    manager <- newManager tlsManagerSettings
+    manager <- newManager tlsManagerSettings{managerModifyRequest = \r -> pure $ r{requestHeaders = [("User-Agent", "type-depict.io/0.0.1")]}}
     res <- search manager "bitraverse"
     print res
