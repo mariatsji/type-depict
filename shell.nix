@@ -15,7 +15,7 @@ let haskellStuff = with pkgs;
             nixfmt
             git
             curl
-            heroku
+            # heroku
             graphviz
         ];
     all = haskellStuff ++ tools;

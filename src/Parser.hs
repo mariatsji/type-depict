@@ -13,7 +13,6 @@ import Data.Text.Encoding (decodeUtf32BE)
 parse :: Text -> Either String Visual
 parse = A.parseOnly visParser . strip
 
--- todo constraints
 visParser :: Parser Visual
 visParser = fixParser <|> connectParser <|> embellishParser <|> groupParser <|> dotParser <|> listParser <|> tupleParser
 

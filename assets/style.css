@@ -16,13 +16,16 @@ svg {
     margin-top: 32px;
 }
 .content {
-    border: 1px dotted black;
     border-radius: 4px;
     margin-right: 16px;
+    background-color: azure;
 }
 .air {
     margin-top: 8px;
     margin-bottom: 8px;
+}
+.lightgrey {
+    background-color: azure;
 }
 .red {
     color: red;
