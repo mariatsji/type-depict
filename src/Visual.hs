@@ -17,6 +17,16 @@ import qualified Data.Text as T
 import Data.Word
 import Debug.Trace
 import Graphics.Svg
+    ( (<<-),
+      Element,
+      AttrTag(Stroke_width_, Cx_, Cy_, R_, X_, Y_, Width_, Height_, Rx_,
+              Fill_, Stroke_dasharray_, D_, Stroke_),
+      circle_,
+      path_,
+      rect_,
+      lA,
+      lR,
+      mA )
 import Numeric (showHex)
 
 data Visual
