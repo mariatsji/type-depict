@@ -113,7 +113,7 @@ htmlHead =
         ]
 
 htmlBody :: Expr -> Content -> Html
-htmlBody expr (Content content) = fold ["<body>", "<h1>", "Haskell Type Visualizer", "</h1>", htmlForm expr, "<div class=\"content air\">", content, "</div>", credits, "</body>"]
+htmlBody expr (Content content) = fold ["<body>", "<h1>", "Haskell Type Visualizer", "</h1>", htmlForm expr, "<div class=\"content air\">", content, "</div>", shareLink, credits, "</body>"]
 
 htmlForm :: Expr -> Html
 htmlForm (Expr expr) =
@@ -126,7 +126,7 @@ htmlForm (Expr expr) =
             <button type="submit" class="bluebg">Visualize</button>
             <button type="submit" class="greenbg" formaction="/hoogle">Hoogle</button>
             <button type="submit" class="snowbg" formaction="/">Clear</button>
-        </form> 
+        </form>
     |]
 
 credits :: Html
@@ -135,3 +135,36 @@ credits =
         [NI.text|
         <p class="credits">Created by <a href="https://twitter.com/SjurMillidahl">Sjur Millidahl</a>, published at <a href="https://github.com/mariatsji/signature-visualizer">GitHub</a></p>
     |]
+
+shareLinkJs :: Html
+shareLinkJs =
+    fromStrict
+        [NI.text|
+    <script>
+        function copyToClipboard(toCopy) {
+            console.log('invoked')
+            var el = document.createElement('textarea')
+            el.value = toCopy
+            el.setAttribute('readonly', '')
+            el.style.position = 'absolute'
+            el.style.left = '-9999px'
+            document.body.appendChild(el)
+            el.select()
+            document.execCommand('copy')
+            document.body.removeChild(el)
+        }
+    </script>
+   |]
+
+shareLink :: Html
+shareLink =
+    shareLinkJs
+        <> fromStrict
+            [NI.text|
+        <Button
+            variant="contained"
+            size="large"
+            onClick="copyToClipboard(window.location.href)">
+            Copy Link to Clipboard
+        </Button>
+   |]
