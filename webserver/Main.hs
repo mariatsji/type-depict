@@ -2,16 +2,20 @@ module Main where
 
 import Control.Monad.IO.Class (liftIO)
 import qualified Control.Monad.Trans.State.Lazy as State
+import Data.Binary.Builder (toLazyByteString)
+import qualified Data.ByteString.Lazy as BSL
 import Data.Foldable (fold)
 import qualified Data.Text as StrictText
+import qualified Data.Text.Encoding as TE
 import Data.Text.Lazy (Text, fromStrict, toStrict)
-import qualified Data.Text.Lazy.Encoding as TE
+import qualified Data.Text.Lazy.Encoding as LTE
 import Debug.Trace (traceShowId)
 import Graphics.Svg
 import qualified Hoogle
 import qualified NeatInterpolation as NI
 import Network.HTTP.Client
 import Network.HTTP.Client.TLS (tlsManagerSettings)
+import Network.HTTP.Types.URI as Uri
 import qualified Parser
 import qualified Visual
 import Web.Scotty
@@ -58,32 +62,33 @@ main = do
             file "assets/favicon.ico"
         post "/submit" $ do
             liftIO $ putStrLn "submit"
-            expression <- param "signature"
-            let txt = toStrict $ TE.decodeUtf8 expression
-            case Parser.parse (traceShowId txt) of
-                Left _ -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, expression did not parse</p>")
-                Right vis -> do
-                    let s = Visual.renderSvg blobble vis
-                        svg = State.evalState s Visual.initEnv
-                        res = doctype <> with (svg11_ svg) container
-                    html (mainHtml (Expr . fromStrict $ txt) (Content $ prettyText res))
+            txt <- param "signature"
+            let lazyBSEnc = toLazyByteString $ Uri.encodePathSegments [txt]
+            redirect (traceShowId $ LTE.decodeUtf8 lazyBSEnc)
         post "/hoogle" $ do
             liftIO $ putStrLn "hoogle"
             needleP <- param "signature"
-            let needle = toStrict $ TE.decodeUtf8 needleP
+            let needle = toStrict $ LTE.decodeUtf8 needleP
             hoogleRes <- liftIO $ Hoogle.search manager needle
             either
                 (\s -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, hoogle did not respond ok</p>"))
-                ( \txt ->
-                    case Parser.parse (traceShowId txt) of
-                        Left _ -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, hoogle-result did not parse</p>")
-                        Right vis -> do
-                            let s = Visual.renderSvg blobble vis
-                                svg = State.evalState s Visual.initEnv
-                                res = doctype <> with (svg11_ svg) container
-                            html (mainHtml (Expr . fromStrict $ txt) (Content $ prettyText res))
-                )
+                draw
                 hoogleRes
+        get "/:xpr" $ do
+            p <- param "xpr"
+            case Uri.decodePathSegments p of
+                [] -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, expression query param did not decode</p>")
+                (x : _) -> draw x
+
+draw :: StrictText.Text -> ActionM ()
+draw txt =
+    case Parser.parse (traceShowId txt) of
+        Left _ -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, expression did not parse</p>")
+        Right vis -> do
+            let s = Visual.renderSvg blobble vis
+                svg = State.evalState s Visual.initEnv
+                res = doctype <> with (svg11_ svg) container
+            html (mainHtml (Expr . fromStrict $ txt) (Content $ prettyText res))
 
 newtype Expr = Expr Text
     deriving stock (Eq, Show)

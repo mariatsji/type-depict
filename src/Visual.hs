@@ -166,4 +166,4 @@ hex Color{..} = "#" <> foldMap showHex2 [_r, _g, _b]
     showHex2 a = T.pack $ if a < 17 then "0" <> showHex a "" else showHex a ""
 
 newColor :: [Color]
-newColor = cycle [Color 0 0 0, Color 37 150 190, Color 224 123 57, Color 105 189 210, Color 128 57 30, Color 204 231 232, Color 25 94 131]
+newColor = cycle [Color 0 0 0, Color 37 150 190, Color 224 123 57, Color 196 47 15, Color 105 189 210, Color 128 57 30, Color 204 231 232, Color 25 94 131]
