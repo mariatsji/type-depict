@@ -106,7 +106,7 @@ htmlHead =
         ]
 
 htmlBody :: Expr -> Content -> Html
-htmlBody expr (Content content) = fold ["<body>", "<h1>", "Haskell Type Visualizer", "</h1>", htmlForm expr, content, credits, "</body>"]
+htmlBody expr (Content content) = fold ["<body>", "<h1>", "Haskell Type Visualizer", "</h1>", htmlForm expr, "<div class=\"content air\">", content, "</div>", credits, "</body>"]
 
 htmlForm :: Expr -> Html
 htmlForm (Expr expr) =

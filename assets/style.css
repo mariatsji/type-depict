@@ -15,6 +15,10 @@ form {
 svg {
     margin-top: 32px;
 }
+.content {
+    border: 1px dotted black;
+    border-radius: 4px;
+}
 .air {
     margin-top: 8px;
     margin-bottom: 8px;

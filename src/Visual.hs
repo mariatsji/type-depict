@@ -5,7 +5,7 @@ module Visual where
 import Control.Monad.Trans.State.Lazy
 import Data.Foldable (fold)
 import Data.Functor (($>))
-import Data.HashMap.Lazy ( HashMap )
+import Data.HashMap.Lazy (HashMap)
 import qualified Data.HashMap.Lazy as HML
 import Data.List (uncons)
 import Data.List.NonEmpty (NonEmpty ((:|)))
@@ -69,7 +69,7 @@ renderSvg blobble@Blobble{..} = \case
                         let (newEnv, c) = case HML.lookup word colors of
                                 Nothing ->
                                     let pickedColor = newColor !! idx
-                                    in (s{colors = HML.insert word pickedColor colors, idx = succ idx}, pickedColor)
+                                     in (s{colors = HML.insert word pickedColor colors, idx = succ idx}, pickedColor)
                                 Just c -> (s, c)
                             midX = x + r + w / 2
                             el = circle_ [Cx_ <<- cT midX, Cy_ <<- cT y', R_ <<- "5", Fill_ <<- hex c]
@@ -82,11 +82,11 @@ renderSvg blobble@Blobble{..} = \case
         let (newEnv, c) = case ms of
                 Nothing -> (s, Color 0 0 0)
                 Just word -> case HML.lookup word colors of
-                                    Nothing -> 
-                                        let pickedColor = newColor !! idx
-                                        in (s{colors = HML.insert word pickedColor colors, idx = succ idx}, pickedColor)
-                                    Just c' -> (s, c')
-    
+                    Nothing ->
+                        let pickedColor = newColor !! idx
+                         in (s{colors = HML.insert word pickedColor colors, idx = succ idx}, pickedColor)
+                    Just c' -> (s, c')
+
             rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- hex c, Stroke_width_ <<- "3"]
         put newEnv -- store new state before recursive call!
         el <- renderSvg (shrink blobble) a
@@ -113,10 +113,10 @@ renderSvg blobble@Blobble{..} = \case
         mconcat . (lines :) <$> res
 
 dotV :: Blobble -> NonEmpty Float -- get y coords
-dotV Blobble{..} = 
-    let factors = 0 : ([1 .. ] >>= (\i -> [i,i])) :: [Float]
-        gameplan = zip (cycle [\f -> r + y + f * 6, \f -> r + y - f * 6]) factors
-    in NE.fromList $ (\(f, a) -> f a) <$> gameplan
+dotV Blobble{..} =
+    let factors = 0 : ([1 ..] >>= (\i -> [i, i])) :: [Float]
+        gameplan = zip (cycle [\f -> r + y - f * 10, \f -> r + y + f * 10]) factors
+     in NE.fromList $ (\(f, a) -> f a) <$> gameplan
 
 split :: Int -> Blobble -> [Blobble]
 split n parent =
@@ -166,4 +166,4 @@ hex Color{..} = "#" <> foldMap showHex2 [_r, _g, _b]
     showHex2 a = T.pack $ if a < 17 then "0" <> showHex a "" else showHex a ""
 
 newColor :: [Color]
-newColor = cycle [Color 0 0 0, Color 0 0 255, Color 255 0 0, Color 0 255 0, Color 255 255 0, Color 0 255 255, Color 255 0 255]
+newColor = cycle [Color 0 0 0, Color 37 150 190, Color 224 123 57, Color 105 189 210, Color 128 57 30, Color 204 231 232, Color 25 94 131]
