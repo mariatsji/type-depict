@@ -25,7 +25,7 @@ data Visual
     | Embellish (Maybe String) Visual
     | Group Visual
     | Dot (NonEmpty String)
-    deriving stock (Eq)
+    deriving stock (Eq, Show)
 
 render :: Visual -> Text
 render = \case
@@ -34,9 +34,6 @@ render = \case
     Embellish _ a -> "(" <> render a <> ")"
     Fix a -> "@" <> render a
     Group a -> "{" <> render a <> "}"
-
-instance Show Visual where
-    show = T.unpack . render
 
 data Blobble = Blobble
     { w :: Float -- the width (without 2r)
@@ -84,7 +81,7 @@ renderSvg blobble@Blobble{..} = \case
                 Nothing -> (s, Color 0 0 0)
                 Just word -> case HML.lookup word colors of
                                     Nothing -> (s{colors = HML.insert word c colors, idx = succ idx}, newColor !! idx)
-                                    Just c -> (s, c)
+                                    Just c' -> (s, c')
     
             rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- hex c, Stroke_width_ <<- "3"]
         el <- renderSvg (shrink blobble) a

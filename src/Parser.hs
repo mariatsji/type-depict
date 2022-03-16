@@ -43,14 +43,13 @@ fixParser = do
 
 connectParser :: Parser Visual
 connectParser = do
-    a <- A.try connectableA
+    a <- A.try connectable
     bs <- A.many1 $ do
-        _ <- A.space >> A.string "->" >> A.space
-        connectableB
+        _ <- A.skipSpace >> A.string "->" >> A.skipSpace
+        connectable
     pure $ Connect (a : bs)
   where
-    connectableA = groupParser <|> embellishParser <|> dotParser <|> listParser <|> tupleParser
-    connectableB = connectableA
+    connectable = tupleParser <|> groupParser <|> embellishParser <|> dotParser <|> listParser
 
 embellishParser :: Parser Visual
 embellishParser = do
@@ -96,7 +95,7 @@ groupParser =
         _ <- A.many' A.space <* A.char ')'
         pure x
   where
-    groupable = fixParser <|> connectParser <|> embellishParser <|> dotParser <|> listParser
+    groupable = fixParser <|> connectParser <|> embellishParser <|> dotParser <|> listParser <|> tupleParser
 
 dotParser :: Parser Visual
 dotParser = do
