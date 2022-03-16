@@ -18,6 +18,7 @@ svg {
 .content {
     border: 1px dotted black;
     border-radius: 4px;
+    margin-right: 16px;
 }
 .air {
     margin-top: 8px;
@@ -31,6 +32,9 @@ svg {
 }
 .greenbg {
     background-color: lightgreen;
+}
+.showbg {
+    background-color: snow;
 }
 .credits {
     font-size: 10px;
