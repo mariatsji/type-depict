@@ -133,7 +133,7 @@ credits :: Html
 credits =
     fromStrict
         [NI.text|
-        <p class="credits">Created by <a href="https://twitter.com/SjurMillidahl">Sjur Millidahl</a>, published at <a href="https://github.com/mariatsji/signature-visualizer">GitHub</a></p>
+        <p class="credits">Created by <a href="https://twitter.com/SjurMillidahl">Sjur Millidahl</a>, published at <a href="https://github.com/mariatsji/type-depict">GitHub</a></p>
     |]
 
 shareLinkJs :: Html

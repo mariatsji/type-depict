@@ -2,7 +2,7 @@
 
 let
   nixpkgs = import ./nixpkgs.nix;
-  artifactName = "signature-visualizer";
+  artifactName = "type-depict";
   extraFiles = ../assets;
   
   # builds a base image to extend with a stack-built binary
@@ -33,6 +33,6 @@ in with nixpkgs; dockerTools.buildLayeredImage {
       "TZ=Europe/Oslo"
       "PATH=${bash}/bin:${busybox}/bin:${curl}/bin"
     ];
-    Cmd = [ "${artifact}/bin/signature-visualizer-webserver" ];
+    Cmd = [ "${artifact}/bin/type-depict-webserver" ];
   };
 }

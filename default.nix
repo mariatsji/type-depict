@@ -3,4 +3,4 @@ let
 
 in nixpkgs.haskell.lib.justStaticExecutables
 (nixpkgs.haskell.lib.disableLibraryProfiling (nixpkgs.haskell.lib.dontHaddock
-  (nixpkgs.haskellPackages.callCabal2nix "signature-visualizer" ./. { })))
+  (nixpkgs.haskellPackages.callCabal2nix "type-depict" ./. { })))

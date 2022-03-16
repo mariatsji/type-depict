@@ -1,5 +1,5 @@
 cabal-version:      2.4
-name:               signature-visualizer
+name:               type-depict
 version:            0.1.0.0
 
 -- A short (one-line) description of the package.
@@ -52,12 +52,12 @@ library
         QuasiQuotes
         TypeApplications
 
-executable signature-visualizer
+executable type-depict
     main-is:          Main.hs
     ghc-options: -threaded -rtsopts -with-rtsopts=-N1
     build-depends:
         base ^>=4.14.3.0,
-        signature-visualizer,
+        type-depict,
         svg-builder,
         text,
         transformers
@@ -70,7 +70,7 @@ executable signature-visualizer
         RankNTypes
         RecordWildCards
 
-executable signature-visualizer-webserver
+executable type-depict-ws
     main-is:          Main.hs
     ghc-options: -threaded -rtsopts -with-rtsopts=-N1
     build-depends:
@@ -82,7 +82,7 @@ executable signature-visualizer-webserver
         http-types,
         neat-interpolation,
         scotty,
-        signature-visualizer,
+        type-depict,
         svg-builder,
         text,
         transformers
@@ -98,13 +98,13 @@ executable signature-visualizer-webserver
         QuasiQuotes
         TypeApplications
 
-Test-Suite signature-visualizer-test
+Test-Suite type-depict-test
     type:       exitcode-stdio-1.0
     main-is:    Spec.hs
     ghc-options: -O2 -fwarn-incomplete-patterns -fwarn-redundant-constraints -fwarn-unused-imports -fwarn-unused-packages
     hs-source-dirs: test
     build-depends:
-        signature-visualizer,
+        type-depict,
         base ^>=4.14.3.0,
         hspec
     other-modules:

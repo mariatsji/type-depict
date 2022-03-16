@@ -24,14 +24,14 @@ jobs:
     - name: Tag docker to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: docker tag signature-visualizer:latest registry.heroku.com/signature-visualizer/web
+      run: docker tag type-depict:latest registry.heroku.com/type-depict/web
     - name: Inspect tagged
-      run: docker inspect -s registry.heroku.com/signature-visualizer/web
+      run: docker inspect -s registry.heroku.com/type-depict/web
     - name: Push docker to Heroku
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: docker push registry.heroku.com/signature-visualizer/web
+      run: docker push registry.heroku.com/type-depict/web
     - name: Heroku container release
       env:
         HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
-      run: heroku container:release web -a signature-visualizer
+      run: heroku container:release web -a type-depict

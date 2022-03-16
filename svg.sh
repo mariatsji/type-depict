@@ -1,3 +1,3 @@
 rm index.html
-cabal run signature-visualizer
+cabal run type-depict
 open index.html

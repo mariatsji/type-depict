@@ -9,7 +9,7 @@ The core idea is representing any Haskell type level signature as a combination 
 Connections represents the function arrow `->`, Embellishment any sort of type with kind `(* -> *)` or higher, and Dots being any type with a kind `*`. Groups
 represents precedence of a sub-expression that should be visualized first.
 
-![visualizations](https://github.com/mariatsji/signature-visualizer/blob/main/doc/Visual.png?raw=true)
+![visualizations](https://github.com/mariatsji/type-depict/blob/main/doc/Visual.png?raw=true)
 
 ## Known limitations:
 Cant parse PolyKinds or FunDeps signatures

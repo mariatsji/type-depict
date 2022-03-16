@@ -1,13 +1,13 @@
 cradle:
   cabal:
     - path: "src"
-      component: "lib:signature-visualizer"
+      component: "lib:type-depict"
 
     - path: "app/Main.hs"
-      component: "signature-visualizer:exe:signature-visualizer"
+      component: "type-depict:exe:type-depict"
 
     - path: "webserver/Main.hs"
-      component: "signature-visualizer:exe:signature-visualizer-webserver"
+      component: "type-depict:exe:type-depict-ws"
 
     - path: "test"
-      component: "signature-visualizer:test:signature-visualizer-test"
+      component: "type-depict:test:type-depict-test"
