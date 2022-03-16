@@ -33,6 +33,6 @@ in with nixpkgs; dockerTools.buildLayeredImage {
       "TZ=Europe/Oslo"
       "PATH=${bash}/bin:${busybox}/bin:${curl}/bin"
     ];
-    Cmd = [ "${artifact}/bin/type-depict-webserver" ];
+    Cmd = [ "${artifact}/bin/type-depict-ws" ];
   };
 }
