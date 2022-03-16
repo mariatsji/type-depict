@@ -18,13 +18,13 @@ svg {
 .content {
     border-radius: 4px;
     margin-right: 16px;
-    background-color: azure;
+    background-color: floralwhite;
 }
 .air {
     margin-top: 8px;
     margin-bottom: 8px;
 }
-.lightgrey {
+.azure {
     background-color: azure;
 }
 .red {

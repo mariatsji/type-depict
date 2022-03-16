@@ -118,7 +118,7 @@ htmlForm (Expr expr) =
             [NI.text|
          <form action="/submit" method="post">
             <label for="signature">Haskell Type Signature</label><br>
-            <input type="text" id="signature" name="signature" class="air lightgrey" size="90" autocomplete="off" value="$strictT"><br>
+            <input type="text" id="signature" name="signature" class="air azure" size="90" autocomplete="off" value="$strictT"><br>
             <button type="submit" class="bluebg">Visualize</button>
             <button type="submit" class="greenbg" formaction="/hoogle">Hoogle</button>
             <button type="submit" class="snowbg" formaction="/">Clear</button>
