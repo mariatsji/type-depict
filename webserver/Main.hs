@@ -71,7 +71,7 @@ main = do
             hoogleRes <- liftIO $ Hoogle.search manager needle
             either
                 (\s -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, hoogle did not respond ok</p>"))
-                draw
+                (redirect . fromStrict)
                 hoogleRes
         get "/:xpr" $ do
             p <- param "xpr"
@@ -121,11 +121,11 @@ htmlForm (Expr expr) =
      in fromStrict
             [NI.text|
          <form action="/submit" method="post">
-            <label for="signature">Haskell Type Signature</label><br>
+            <label class="inputlabel" for="signature">Haskell Type Signature</label><br>
             <input type="text" id="signature" name="signature" class="air azure" size="90" autocomplete="off" value="$strictT"><br>
-            <button type="submit" class="bluebg">Visualize</button>
-            <button type="submit" class="greenbg" formaction="/hoogle">Hoogle</button>
-            <button type="submit" class="snowbg" formaction="/">Clear</button>
+            <button type="submit" class="bluebg" title="Render the visualization in the input field above">Visualize</button>
+            <button type="submit" class="greenbg" formaction="/hoogle" title="Hoogle a function name in the input field above">Hoogle</button>
+            <button type="submit" class="snowbg" formaction="/" title="Clear visualization and reset page">Clear</button>
         </form>
     |]
 
@@ -164,7 +164,8 @@ shareLink =
         <Button
             variant="contained"
             size="large"
-            onClick="copyToClipboard(window.location.href)">
-            Copy Link to Clipboard
+            onClick="copyToClipboard(window.location.href)"
+            title="Copy this visualization url to the clipboard">
+            Copy to Clipboard
         </Button>
    |]

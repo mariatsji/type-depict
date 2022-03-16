@@ -15,6 +15,9 @@ form {
 svg {
     margin-top: 32px;
 }
+.inputlabel {
+    font-size: 12px;
+}
 .content {
     border-radius: 4px;
     margin-right: 16px;
@@ -36,7 +39,7 @@ svg {
 .greenbg {
     background-color: lightgreen;
 }
-.showbg {
+.snowbg {
     background-color: snow;
 }
 .credits {

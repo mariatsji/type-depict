@@ -28,7 +28,7 @@ search manager needle = do
     withResponse request manager $ do
         \responseBodyR -> do
             bs <- responseBody responseBodyR
-            case eitherDecode @([HoogleRes]) (fromStrict bs) of
+            case eitherDecode @[HoogleRes] (fromStrict bs) of
                 Right (HoogleRes{..} : _) -> pure $ Right item
                 Right [] -> pure $ Left "no results"
                 Left s -> pure $ Left s
