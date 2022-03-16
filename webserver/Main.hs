@@ -5,6 +5,7 @@ import qualified Control.Monad.Trans.State.Lazy as State
 import Data.Binary.Builder (toLazyByteString)
 import qualified Data.ByteString.Lazy as BSL
 import Data.Foldable (fold)
+import Data.String (IsString)
 import qualified Data.Text as StrictText
 import qualified Data.Text.Encoding as TE
 import Data.Text.Lazy (Text, fromStrict, toStrict)
@@ -17,16 +18,14 @@ import Network.HTTP.Client
 import Network.HTTP.Client.TLS (tlsManagerSettings)
 import Network.HTTP.Types.URI as Uri
 import qualified Parser
-import qualified Visual
-import Web.Scotty
-
-import Data.String (IsString)
 import System.Environment (lookupEnv)
 import System.IO (
     BufferMode (LineBuffering),
     hSetBuffering,
     stdout,
  )
+import qualified Visual
+import Web.Scotty
 
 -- heroku provides PORT
 readPort :: IO Int
