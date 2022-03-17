@@ -53,8 +53,10 @@ connectParser = do
 embellishParser :: Parser Visual
 embellishParser = do
     w <- wordspace
-    e <- embellishable
-    pure $ Embellish (Just w) e
+    e <- A.many1 $ do
+        _ <- A.skipSpace
+        embellishable
+    pure . Embellish (Just w) . NE.fromList $ e
   where
     embellish1 = wordspace >> embellishable
     embellishable = groupParser <|> dotParser <|> connectParser <|> listParser <|> tupleParser
@@ -66,7 +68,7 @@ listParser =
         _ <- A.char '[' *> A.many' A.space
         x <- listable
         _ <- A.many' A.space <* A.char ']'
-        pure x
+        pure (NE.fromList [x])
   where
     listable = connectParser <|> embellishParser <|> dotParser <|> groupParser <|> tupleParser
 
@@ -74,15 +76,15 @@ word :: Parser String
 word = A.many1 A.letter
 
 tupleParser :: Parser Visual
-tupleParser =
-    Embellish Nothing
-        <$> ( A.skipSpace
-                *> A.char '('
-                *> A.skipSpace
-                *> A.many1 (tupable *> A.skipSpace *> A.char ',')
-                *> A.skipSpace
-                *> tupable <* A.skipSpace <* A.char ')' <* A.skipSpace
-            )
+tupleParser = do
+    _ <- A.skipSpace
+    _ <- A.char '('
+    ts <- A.many1 tupable <* A.skipSpace <* A.char ',' <* A.skipSpace
+    _ <- A.skipSpace
+    t <- tupable
+    _ <- A.char ')'
+    _ <- A.skipSpace
+    pure $ Embellish Nothing (NE.fromList (ts <> [t]))
   where
     tupable = connectParser <|> embellishParser <|> tupleParser <|> listParser <|> dotParser
 
@@ -98,8 +100,6 @@ groupParser =
 
 dotParser :: Parser Visual
 dotParser = do
-    ws <- A.many1 $ do
-            _ <- A.skipSpace
-            word <|> T.unpack<$> A.string "()"
-    pure . Dot . NE.fromList $ ws
+    ws <- word <|> T.unpack <$> A.string "()"
+    pure $ Dot ws
 
