@@ -108,7 +108,7 @@ htmlHead =
     fold
         [ "<head>"
         , "<link rel=\"stylesheet\" type=\"text/css\" href=\"/style.css\" />"
-        , "<title>Haskell Signature Visualizer</title>"
+        , "<title>type-depict.io</title>"
         , "<meta charset=\"utf-8\" />"
         , "</head>"
         ]
