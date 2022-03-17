@@ -78,7 +78,7 @@ renderSvg blobble@Blobble{..} = \case
                 Just c -> (s, c)
             midX = x + r + w / 2
             el = circle_ [Cx_ <<- cT midX, Cy_ <<- cT (y + r), R_ <<- "5", Fill_ <<- hex c]
-        put newEnv $> el
+        put newEnv $> traceShow blobble el
     Embellish ms xs -> do      
         s@Env{..} <- get
         let (newEnv, c) = case ms of
