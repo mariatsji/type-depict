@@ -42,7 +42,7 @@ fixParser = do
 
 connectParser :: Parser Visual
 connectParser = do
-    a <- A.try connectable
+    a <- A.skipSpace *> A.try connectable
     bs <- A.many1 $ do
         _ <- A.skipSpace >> A.string "->" >> A.skipSpace
         connectable
@@ -52,6 +52,7 @@ connectParser = do
 
 embellishParser :: Parser Visual
 embellishParser = do
+    _ <- A.skipSpace
     w <- wordspace
     e <- A.many1 $ do
         _ <- A.skipSpace
@@ -65,6 +66,7 @@ embellishParser = do
 listParser :: Parser Visual
 listParser =
     Embellish Nothing <$> do
+        _ <- A.skipSpace
         _ <- A.char '[' *> A.many' A.space
         x <- listable
         _ <- A.many' A.space <* A.char ']'
@@ -83,7 +85,6 @@ tupleParser = do
     _ <- A.skipSpace
     t <- tupable
     _ <- A.char ')'
-    _ <- A.skipSpace
     pure $ Embellish Nothing (NE.fromList (ts <> [t]))
   where
     tupable = connectParser <|> embellishParser <|> tupleParser <|> listParser <|> dotParser
@@ -91,6 +92,7 @@ tupleParser = do
 groupParser :: Parser Visual
 groupParser =
     Group <$> do
+        _ <- A.skipSpace
         _ <- A.char '(' *> A.many' A.space
         x <- groupable
         _ <- A.many' A.space <* A.char ')'
@@ -100,6 +102,7 @@ groupParser =
 
 dotParser :: Parser Visual
 dotParser = do
+    _ <- A.skipSpace
     ws <- word <|> T.unpack <$> A.string "()"
     pure $ Dot ws
 
