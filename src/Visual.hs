@@ -31,7 +31,7 @@ import Numeric (showHex)
 
 data Visual
     = Fix Visual
-    | Connect [Visual]
+    | Connect (NonEmpty Visual)
     | Embellish (Maybe String) (NonEmpty Visual)
     | Group Visual
     | Dot String
@@ -40,7 +40,7 @@ data Visual
 render :: Visual -> Text
 render = \case
     Dot xs -> "."
-    Connect xs -> T.intercalate "--" $ fmap render xs
+    Connect xs -> T.intercalate "--" $ NE.toList $ fmap render xs
     Embellish _ as -> "(" <> foldMap render as <> ")"
     Fix a -> "@" <> render a
     Group a -> "{" <> render a <> "}"
@@ -110,7 +110,7 @@ renderSvg blobble@Blobble{..} = \case
         pure $ el <> el2 <> arr
     Connect xs -> do
         let blobbles = splitH (length xs) blobble
-            zipped = zip blobbles xs
+            zipped = zip blobbles (NE.toList xs)
             lines = connectLines zipped
             res =
                 traverse

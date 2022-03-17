@@ -1,3 +1,4 @@
+{-#language OverloadedLists #-}
 module Parser where
 
 import Control.Applicative ((<|>))
@@ -46,7 +47,7 @@ connectParser = do
     bs <- A.many1 $ do
         _ <- A.skipSpace >> A.string "->" >> A.skipSpace
         connectable
-    pure $ Connect (a : bs)
+    pure $ Connect (a :| bs)
   where
     connectable = tupleParser <|> groupParser <|> embellishParser <|> dotParser <|> listParser
 
