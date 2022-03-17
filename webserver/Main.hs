@@ -33,10 +33,10 @@ readPort = do
     maybe 3000 (read @Int) <$> lookupEnv "PORT"
 
 container :: [Attribute]
-container = [Version_ <<- "1.1", Width_ <<- "1200", Height_ <<- "140"]
+container = [Version_ <<- "1.1", Width_ <<- "1500", Height_ <<- "140"]
 
-blobble :: Visual.Blobble
-blobble = Visual.Blobble{x = 3, y = 3, w = 800, r = 50}
+blobble :: Float -> Visual.Blobble
+blobble width = Visual.Blobble{x = 3, y = 3, w = width, r = 50}
 
 main :: IO ()
 main = do
@@ -84,7 +84,8 @@ draw txt =
     case Parser.parse (traceShowId txt) of
         Left _ -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, expression did not parse</p>")
         Right vis -> do
-            let s = Visual.renderSvg blobble vis
+            let initWidth = Visual.estimateWidth vis
+                s = Visual.renderSvg (blobble initWidth) vis
                 svg = State.evalState s Visual.initEnv
                 res = doctype <> with (svg11_ svg) container
             html (mainHtml (Expr . fromStrict $ txt) (Content $ prettyText res))
@@ -142,16 +143,17 @@ shareLinkJs =
         [NI.text|
     <script>
         function copyToClipboard(toCopy) {
-            console.log('invoked')
-            var el = document.createElement('textarea')
-            el.value = toCopy
-            el.setAttribute('readonly', '')
-            el.style.position = 'absolute'
-            el.style.left = '-9999px'
-            document.body.appendChild(el)
-            el.select()
-            document.execCommand('copy')
-            document.body.removeChild(el)
+            console.log('invoked');
+            var el = document.createElement('textarea');
+            el.value = toCopy;
+            el.setAttribute('readonly', '');
+            el.style.position = 'absolute';
+            el.style.left = '-9999px';
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+            window.alert("URL copied to clipboard");
         }
     </script>
    |]
@@ -166,6 +168,6 @@ shareLink =
             size="large"
             onClick="copyToClipboard(window.location.href)"
             title="Copy this visualization url to the clipboard">
-            Copy to Clipboard
+            Sharelink
         </Button>
    |]
