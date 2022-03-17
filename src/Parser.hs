@@ -82,9 +82,10 @@ tupleParser :: Parser Visual
 tupleParser = do
     _ <- A.skipSpace
     _ <- A.char '('
-    ts <- A.many1 tupable <* A.skipSpace <* A.char ',' <* A.skipSpace
     _ <- A.skipSpace
+    ts <- A.many1 $ tupable <* A.skipSpace <* A.char ',' <* A.skipSpace
     t <- tupable
+    _ <- A.skipSpace
     _ <- A.char ')'
     pure $ Embellish Nothing (NE.fromList (ts <> [t]))
   where
