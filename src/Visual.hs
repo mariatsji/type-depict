@@ -136,10 +136,10 @@ splitV n parent =
             i = fromIntegral idx
             r' = r / n - 2
          in Blobble
-                { x = x + w / 2
-                , y = i * r' + y + 2
+                { x = x + r
+                , y = i * 2 * r' + y + 4
                 , r = r'
-                , w = w - 2
+                , w = w - r
                 }
 
 splitH :: Int -> Blobble -> [Blobble]
