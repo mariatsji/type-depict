@@ -33,10 +33,10 @@ readPort = do
     maybe 3000 (read @Int) <$> lookupEnv "PORT"
 
 container :: [Attribute]
-container = [Version_ <<- "1.1", Width_ <<- "800", Height_ <<- "120"]
+container = [Version_ <<- "1.1", Width_ <<- "1200", Height_ <<- "140"]
 
 blobble :: Visual.Blobble
-blobble = Visual.Blobble{x = 3, y = 3, w = 600, r = 40}
+blobble = Visual.Blobble{x = 3, y = 3, w = 800, r = 50}
 
 main :: IO ()
 main = do

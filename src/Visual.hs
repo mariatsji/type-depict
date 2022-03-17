@@ -76,7 +76,7 @@ renderSvg blobble@Blobble{..} = \case
                     let pickedColor = newColor !! idx
                         in (s{colors = HML.insert word pickedColor colors, idx = succ idx}, pickedColor)
                 Just c -> (s, c)
-            midX = x + r + w / 2
+            midX = x + r + w / 2 + 2
             el = circle_ [Cx_ <<- cT midX, Cy_ <<- cT (y + r), R_ <<- "5", Fill_ <<- hex c]
         put newEnv $> traceShow blobble el
     Embellish ms xs -> do      
