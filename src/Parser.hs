@@ -97,15 +97,9 @@ groupParser =
     groupable = fixParser <|> connectParser <|> embellishParser <|> dotParser <|> listParser <|> tupleParser
 
 dotParser :: Parser Visual
-dotParser = dotParser' <|> unitParser
-
-unitParser :: Parser Visual
-unitParser = Dot . NE.fromList . (: []) . T.unpack <$> A.string "()"
-
-dotParser' :: Parser Visual
-dotParser' = do
+dotParser = do
     ws <- A.many1 $ do
             _ <- A.skipSpace
-            word
+            word <|> T.unpack<$> A.string "()"
     pure . Dot . NE.fromList $ ws
 

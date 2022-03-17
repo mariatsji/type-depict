@@ -32,16 +32,16 @@ import Numeric (showHex)
 data Visual
     = Fix Visual
     | Connect [Visual]
-    | Embellish (Maybe String) Visual
+    | Embellish (Maybe String) (NonEmpty Visual)
     | Group Visual
-    | Dot (NonEmpty String)
+    | Dot String
     deriving stock (Eq, Show)
 
 render :: Visual -> Text
 render = \case
-    Dot xs -> T.pack $ '.' <$ NE.toList xs
+    Dot xs -> "."
     Connect xs -> T.intercalate "--" $ fmap render xs
-    Embellish _ a -> "(" <> render a <> ")"
+    Embellish _ as -> "(" <> foldMap render as <> ")"
     Fix a -> "@" <> render a
     Group a -> "{" <> render a <> "}"
 
@@ -69,25 +69,17 @@ initEnv =
 
 renderSvg :: Blobble -> Visual -> State Env Element
 renderSvg blobble@Blobble{..} = \case
-    Dot words -> do
-        let ys = dotV blobble
-            zipped = NE.zip words ys
-            elemStates =
-                traverse
-                    ( \(word, y') -> do
-                        s@Env{..} <- get
-                        let (newEnv, c) = case HML.lookup word colors of
-                                Nothing ->
-                                    let pickedColor = newColor !! idx
-                                     in (s{colors = HML.insert word pickedColor colors, idx = succ idx}, pickedColor)
-                                Just c -> (s, c)
-                            midX = x + r + w / 2
-                            el = circle_ [Cx_ <<- cT midX, Cy_ <<- cT y', R_ <<- "5", Fill_ <<- hex c]
-                        put newEnv $> el
-                    )
-                    zipped
-        mconcat . NE.toList <$> elemStates
-    Embellish ms a -> do
+    Dot word -> do
+        s@Env{..} <- get
+        let (newEnv, c) = case HML.lookup word colors of
+                Nothing ->
+                    let pickedColor = newColor !! idx
+                        in (s{colors = HML.insert word pickedColor colors, idx = succ idx}, pickedColor)
+                Just c -> (s, c)
+            midX = x + r + w / 2
+            el = circle_ [Cx_ <<- cT midX, Cy_ <<- cT (y + r), R_ <<- "5", Fill_ <<- hex c]
+        put newEnv $> el
+    Embellish ms xs -> do      
         s@Env{..} <- get
         let (newEnv, c) = case ms of
                 Nothing -> (s, Color 0 0 0)
@@ -96,11 +88,15 @@ renderSvg blobble@Blobble{..} = \case
                         let pickedColor = newColor !! idx
                          in (s{colors = HML.insert word pickedColor colors, idx = succ idx}, pickedColor)
                     Just c' -> (s, c')
-
-            rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- hex c, Stroke_width_ <<- "3"]
+        let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- hex c, Stroke_width_ <<- "3"]    
         put newEnv -- store new state before recursive call!
-        el <- renderSvg (shrink blobble) a
-        pure $ rect <> el
+        let blobbles = splitV (length xs) blobble
+            zipped = zip blobbles (NE.toList xs)
+            res =
+                traverse
+                    (uncurry renderSvg)
+                    zipped
+        mconcat . (rect :) <$> res
     Group a -> do
         let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3", Stroke_dasharray_ <<- "4"]
         el <- renderSvg (shrink blobble) a
@@ -109,11 +105,11 @@ renderSvg blobble@Blobble{..} = \case
         let arr =
                 path_ [D_ <<- mA (x + r + w / 2 + 20) (y + 2 * r) <> lR (-20) 20, Stroke_ <<- "black", Stroke_width_ <<- "3"]
                     <> path_ [D_ <<- mA (x + r + w / 2 + 20) (y + 2 * r) <> lR (-20) (-20), Stroke_ <<- "black", Stroke_width_ <<- "3"]
-        el <- renderSvg blobble (Embellish Nothing a)
+        el <- renderSvg blobble (Embellish Nothing (NE.fromList [a]))
         el2 <- renderSvg (shrink blobble) a
         pure $ el <> el2 <> arr
     Connect xs -> do
-        let blobbles = split (length xs) blobble
+        let blobbles = splitH (length xs) blobble
             zipped = zip blobbles xs
             lines = connectLines zipped
             res =
@@ -128,8 +124,26 @@ dotV Blobble{..} =
         gameplan = zip (cycle [\f -> r + y - f * 10, \f -> r + y + f * 10]) factors
      in NE.fromList $ (\(f, a) -> f a) <$> gameplan
 
-split :: Int -> Blobble -> [Blobble]
-split n parent =
+splitV :: Int -> Blobble -> [Blobble]
+splitV n parent =
+    if n < 2
+        then [parent]
+        else fmap (go parent n) [0 .. pred n]
+  where
+    go :: Blobble -> Int -> Int -> Blobble
+    go Blobble{..} total idx =
+        let n = fromIntegral total
+            i = fromIntegral idx
+            r' = r / n - 2
+         in Blobble
+                { x = x + w / 2
+                , y = i * r' + y + 2
+                , r = r'
+                , w = w - 2
+                }
+
+splitH :: Int -> Blobble -> [Blobble]
+splitH n parent =
     if n < 2
         then [parent]
         else fmap (go parent n) [1 .. n]
