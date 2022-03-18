@@ -9,12 +9,15 @@
 }
 .bluebg {
     background-color: lightskyblue;
+    color: black;
 }
 .greenbg {
     background-color: lightgreen;
+    color: black;
 }
 .snowbg {
     background-color: lightpink;
+    color: black;
 }
 .content {
     overflow: auto;
