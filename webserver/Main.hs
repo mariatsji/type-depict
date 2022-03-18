@@ -49,6 +49,8 @@ main = do
     scotty port $ do
         get "/" $ do
             redirect "/%28a%20-%3E%20m%20b%29%20-%3E%20m%20a%20-%3E%20m%20b"
+        post "/" $ do
+            redirect "/a"
         get "/style.css" $ do
             setHeader "Content-Type" "text/css; charset=utf-8"
             file "assets/style.css"
