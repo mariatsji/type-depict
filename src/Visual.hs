@@ -90,7 +90,7 @@ renderSvg blobble@Blobble{..} = \case
                     Just c' -> (s, c')
         let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- hex c, Stroke_width_ <<- "3"]    
         put newEnv -- store new state before recursive call!
-        let blobbles = splitV (length xs) blobble
+        let blobbles = splitV (length xs) (shrink blobble)
             zipped = zip blobbles (NE.toList xs)
             res =
                 traverse

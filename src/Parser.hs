@@ -61,7 +61,7 @@ embellishParser = do
     pure . Embellish (Just w) . NE.fromList $ e
   where
     embellish1 = wordspace >> embellishable
-    embellishable = groupParser <|> dotParser <|> connectParser <|> listParser <|> tupleParser
+    embellishable = groupParser <|> dotParser <|> listParser <|> tupleParser
     wordspace = word <* A.space
 
 listParser :: Parser Visual

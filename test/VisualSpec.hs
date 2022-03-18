@@ -47,3 +47,5 @@ spec = describe "Parser" $ do
         fmap Visual.render (Parser.parse "(a, f -> (m [a]))") `shouldBe` Right "(..--{((.))})"
     it "parses (a,b,c)" $ do
         Parser.parse "(a,b,c)" `shouldBe` Right (Embellish Nothing [Dot "a", Dot "b", Dot "c"])
+    it "parses f (b, a)" $ do
+        Parser.parse "f (b, a)" `shouldBe` Right (Embellish (Just "f") [Embellish Nothing [Dot "b", Dot "a"]])
