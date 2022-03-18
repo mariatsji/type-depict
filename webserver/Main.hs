@@ -48,11 +48,7 @@ main = do
     putStrLn "scotty webserver going up"
     scotty port $ do
         get "/" $ do
-            let cnt = doctype <> with (svg11_ mempty) container
-            html (mainHtml "(a -> m b) -> m a -> m b" (Content $ prettyText cnt))
-        post "/" $ do
-            let cnt = doctype <> with (svg11_ mempty) container
-            html (mainHtml "(a -> m b) -> m a -> m b" (Content $ prettyText cnt))
+            redirect "/%28a%20-%3E%20m%20b%29%20-%3E%20m%20a%20-%3E%20m%20b"
         get "/style.css" $ do
             setHeader "Content-Type" "text/css; charset=utf-8"
             file "assets/style.css"
@@ -110,11 +106,12 @@ htmlHead =
         , "<link rel=\"stylesheet\" type=\"text/css\" href=\"/style.css\" />"
         , "<title>type-depict.io</title>"
         , "<meta charset=\"utf-8\" />"
+        , "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
         , "</head>"
         ]
 
 htmlBody :: Expr -> Content -> Html
-htmlBody expr (Content content) = fold ["<body>", "<h1>", "Haskell Type Visualizer", "</h1>", htmlForm expr, "<div class=\"content air\">", content, "</div>", shareLink, credits, "</body>"]
+htmlBody expr (Content content) = fold ["<body>", "<h1>", "Haskell Type Visualizer", "</h1>", htmlForm expr, "<div class=\"content\">", content, "</div>", shareLink, credits, "</body>"]
 
 htmlForm :: Expr -> Html
 htmlForm (Expr expr) =
@@ -123,7 +120,7 @@ htmlForm (Expr expr) =
             [NI.text|
          <form action="/submit" method="post">
             <label class="inputlabel" for="signature">Haskell Type Signature</label><br>
-            <input type="text" id="signature" name="signature" class="air azure" size="90" autocomplete="off" value="$strictT"><br>
+            <input type="text" id="signature" name="signature" class="azure" size="90" autocomplete="off" value="$strictT"><br>
             <button type="submit" class="bluebg" title="Render the visualization in the input field above">Visualize</button>
             <button type="submit" class="greenbg" formaction="/hoogle" title="Hoogle a function name in the input field above">Hoogle</button>
             <button type="submit" class="snowbg" formaction="/" title="Clear visualization and reset page">Clear</button>
@@ -165,6 +162,7 @@ shareLink =
             [NI.text|
         <Button
             variant="contained"
+            class="sharelink"
             size="large"
             onClick="copyToClipboard(window.location.href)"
             title="Copy this visualization url to the clipboard">

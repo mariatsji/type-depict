@@ -1,37 +1,11 @@
 * {
     font-family: American Typewriter, serif;
-    margin-left: 16px;
-}
-body {
-    background-color: antiquewhite;
-}
-a {
-    margin: 0px;
-}
-form {
-    margin-top: 16px;
-    margin-left: 0px;
-}
-svg {
-    margin-top: 32px;
-}
-.inputlabel {
-    font-size: 12px;
-}
-.content {
-    border-radius: 4px;
-    margin-right: 16px;
-    background-color: floralwhite;
-}
-.air {
-    margin-top: 8px;
-    margin-bottom: 8px;
 }
 .azure {
     background-color: azure;
 }
 .red {
-    color: red;
+    color: rgb(182, 63, 63);
 }
 .bluebg {
     background-color: lightskyblue;
@@ -40,9 +14,92 @@ svg {
     background-color: lightgreen;
 }
 .snowbg {
-    background-color: snow;
+    background-color: lightpink;
+}
+.content {
+    overflow: auto;
 }
 .credits {
-    font-size: 10px;
+    font-size: 16px;
     color: lightslategrey;
+}
+/* mobile device */
+@media only screen and (max-width:445px){
+    h1 {
+        font-size: 24px;
+    }
+    p {
+        font-size: 16px;
+    }
+    body {
+        background-color: antiquewhite;
+    }
+    a {
+        margin: 0px;
+    }
+    form {
+        width: 100%;
+        max-height: 100px;
+    }
+    input {
+        padding: 10px;
+        font-size: 16px;
+    }
+    button {
+        padding: 4px;
+        margin-top: 8px;
+        margin-right: 8px;
+        margin-bottom: 8px;
+    }
+    svg {
+        margin-top: 20px;
+        max-width: 3000px;
+        max-height: 600px;
+    }
+    .credits {
+        font-size: 13px;
+        margin-top: 60px;
+    }
+}
+/* desktop */
+@media only screen and not (max-width:445px) {
+    * {
+        font-family: American Typewriter, serif;
+    }
+    h1 {
+        margin-left: 16px;
+    }
+    p {
+        margin-left: 16px;
+    }
+    body {
+        background-color: antiquewhite;
+    }
+    a {
+        margin: 0px;
+    }
+    form {
+        width: 100%;
+        max-height: 100px;
+        margin-left: 16px;
+    }
+    input {
+        padding: 10px;
+        font-size: 16px;
+    }
+    button {
+        padding: 4px;
+        margin-top: 8px;
+        margin-right: 8px;
+        margin-bottom: 8px;
+    }
+    svg {
+        margin-top: 20px;
+        margin-left: 16px;
+        max-width: 3000px;
+        max-height: 600px;
+    }
+    .sharelink {
+        margin-left: 16px;
+    }
 }

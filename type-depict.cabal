@@ -40,8 +40,8 @@ library
         unordered-containers
     exposed-modules:
         Hoogle
-        Visual
         Parser
+        Visual
     default-extensions:
         DeriveGeneric
         DerivingStrategies
