@@ -208,7 +208,10 @@ newColor = cycle [Color 0 0 0, Color 224 123 57, Color 105 189 210, Color 128 57
 
 estimateWidth :: Visual -> Float
 estimateWidth vis =
-    100 * fromIntegral (vlength vis) + 150 * fromIntegral (vdepth vis)
+    let l = vlength vis
+     in if l == 1
+            then 100 * min 1 (fromIntegral (succ (vdepth vis)))
+            else 100 * fromIntegral (vlength vis) + 150 * fromIntegral (vdepth vis)
 
 vlength :: Visual -> Int
 vlength = go 1
@@ -223,16 +226,14 @@ vlength = go 1
 
 vdepth :: Visual -> Int
 vdepth = go 0
-    where
-        go acc =
-            \case
-                Fix a -> go (succ acc) a
-                Embellish _ l -> nonEmptyMax $ go (succ acc) <$> l
-                Group a -> go (succ acc) a
-                Dot _ -> acc 
-                Connect l -> nonEmptyMax $ go acc <$> l
-                  
+  where
+    go acc =
+        \case
+            Fix a -> go (succ acc) a
+            Embellish _ l -> nonEmptyMax $ go (succ acc) <$> l
+            Group a -> go (succ acc) a
+            Dot _ -> acc
+            Connect l -> nonEmptyMax $ go acc <$> l
 
 nonEmptyMax :: Ord a => NonEmpty a -> a
 nonEmptyMax = maximum . NE.toList
-
