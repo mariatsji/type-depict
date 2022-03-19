@@ -16,17 +16,31 @@ import Data.Text (Text)
 import qualified Data.Text as T
 import Data.Word
 import Debug.Trace
-import Graphics.Svg
-    ( (<<-),
-      Element,
-      AttrTag(Stroke_width_, Cx_, Cy_, R_, X_, Y_, Width_, Height_, Rx_,
-              Fill_, Stroke_dasharray_, D_, Stroke_),
-      circle_,
-      path_,
-      rect_,
-      lA,
-      lR,
-      mA )
+import Graphics.Svg (
+    AttrTag (
+        Cx_,
+        Cy_,
+        D_,
+        Fill_,
+        Height_,
+        R_,
+        Rx_,
+        Stroke_,
+        Stroke_dasharray_,
+        Stroke_width_,
+        Width_,
+        X_,
+        Y_
+    ),
+    Element,
+    circle_,
+    lA,
+    lR,
+    mA,
+    path_,
+    rect_,
+    (<<-),
+ )
 import Numeric (showHex)
 
 data Visual
@@ -74,12 +88,12 @@ renderSvg blobble@Blobble{..} = \case
         let (newEnv, c) = case HML.lookup word colors of
                 Nothing ->
                     let pickedColor = newColor !! idx
-                        in (s{colors = HML.insert word pickedColor colors, idx = succ idx}, pickedColor)
+                     in (s{colors = HML.insert word pickedColor colors, idx = succ idx}, pickedColor)
                 Just c -> (s, c)
             midX = x + r + w / 2 + 2
             el = circle_ [Cx_ <<- cT midX, Cy_ <<- cT (y + r), R_ <<- "5", Fill_ <<- hex c]
         put newEnv $> traceShow blobble el
-    Embellish ms xs -> do      
+    Embellish ms xs -> do
         s@Env{..} <- get
         let (newEnv, c) = case ms of
                 Nothing -> (s, Color 0 0 0)
@@ -88,7 +102,7 @@ renderSvg blobble@Blobble{..} = \case
                         let pickedColor = newColor !! idx
                          in (s{colors = HML.insert word pickedColor colors, idx = succ idx}, pickedColor)
                     Just c' -> (s, c')
-        let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- hex c, Stroke_width_ <<- "3"]    
+        let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- hex c, Stroke_width_ <<- "3"]
         put newEnv -- store new state before recursive call!
         let blobbles = splitV (length xs) (shrink blobble)
             zipped = zip blobbles (NE.toList xs)
@@ -193,14 +207,31 @@ newColor :: [Color]
 newColor = cycle [Color 0 0 0, Color 224 123 57, Color 105 189 210, Color 128 57 30, Color 204 231 232, Color 25 94 131]
 
 estimateWidth :: Visual -> Float
-estimateWidth = \case
-    Connect xs -> max 1200 $ fromIntegral (NE.length xs) * 300
-    v -> if containsConnections v then 600 else 300
+estimateWidth = (*) 200 . fromIntegral . vlength
 
-containsConnections :: Visual -> Bool
-containsConnections c = case c of
-    Fix _ -> False
-    Embellish _ xs -> any containsConnections xs
-    Group x -> containsConnections x
-    Dot _ -> False
-    Connect _ -> True
+vlength :: Visual -> Int
+vlength = go 1
+  where
+    go acc =
+        \case
+            Fix a -> go acc a
+            Embellish _ l -> nonEmptyMax $ go (max acc (NE.length l)) <$> l
+            Group a -> go acc a
+            Dot _ -> acc
+            Connect l -> nonEmptyMax $ go (max acc (NE.length l)) <$> l
+
+vdepth :: Visual -> Int
+vdepth = go 0
+    where
+        go acc =
+            \case
+                Fix a -> go (succ acc) a
+                Embellish _ l -> nonEmptyMax $ go (succ acc) <$> l
+                Group a -> go (succ acc) a
+                Dot _ -> acc 
+                Connect l -> nonEmptyMax $ go acc <$> l
+                  
+
+nonEmptyMax :: Ord a => NonEmpty a -> a
+nonEmptyMax = maximum . NE.toList
+
