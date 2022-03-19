@@ -207,7 +207,8 @@ newColor :: [Color]
 newColor = cycle [Color 0 0 0, Color 224 123 57, Color 105 189 210, Color 128 57 30, Color 204 231 232, Color 25 94 131]
 
 estimateWidth :: Visual -> Float
-estimateWidth = (*) 200 . fromIntegral . vlength
+estimateWidth vis =
+    100 * fromIntegral (vlength vis) + 150 * fromIntegral (vdepth vis)
 
 vlength :: Visual -> Int
 vlength = go 1
