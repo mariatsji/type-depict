@@ -77,7 +77,7 @@ data Env = Env
 initEnv :: Env
 initEnv =
     Env
-        { colors = HML.fromList [("a", Color 37 150 190), ("b", Color 10 150 10), ("f", Color 10 10 150), ("m", Color 150 10 10)]
+        { colors = HML.fromList [("a", Color 50 100 200), ("b", Color 110 210 20), ("f", Color 10 10 150), ("m", Color 150 10 10)]
         , idx = 0
         }
 
@@ -111,10 +111,11 @@ renderSvg blobble@Blobble{..} = \case
                     (uncurry renderSvg)
                     zipped
         mconcat . (rect :) <$> res
-    Group a -> do
+    Group a@(Connect _) -> do
         let rect = rect_ [X_ <<- cT x, Y_ <<- cT y, Width_ <<- cT (r + r + w), Height_ <<- cT (2 * r), Rx_ <<- cT r, Fill_ <<- "none", Stroke_ <<- "black", Stroke_width_ <<- "3", Stroke_dasharray_ <<- "4"]
         el <- renderSvg (shrink blobble) a
         pure $ rect <> el
+    Group a -> renderSvg blobble a
     Fix a -> do
         let arr =
                 path_ [D_ <<- mA (x + r + w / 2 + 20) (y + 2 * r) <> lR (-20) 20, Stroke_ <<- "black", Stroke_width_ <<- "3"]
@@ -219,7 +220,7 @@ vlength = go 1
     go acc =
         \case
             Fix a -> go acc a
-            Embellish _ l -> nonEmptyMax $ go (max acc (NE.length l)) <$> l
+            Embellish _ l -> nonEmptyMax $ go acc <$> l
             Group a -> go acc a
             Dot _ -> acc
             Connect l -> nonEmptyMax $ go (max acc (NE.length l)) <$> l
