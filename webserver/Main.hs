@@ -48,9 +48,9 @@ main = do
     putStrLn "scotty webserver going up"
     scotty port $ do
         get "/" $ do
-            redirect "/%28a%20-%3E%20m%20b%29%20-%3E%20m%20a%20-%3E%20m%20b"
+            html $ mainHtml Nothing (Expr "") (Content "")
         post "/" $ do
-            redirect "/a"
+            redirect "/"
         get "/style.css" $ do
             setHeader "Content-Type" "text/css; charset=utf-8"
             file "assets/style.css"
@@ -63,32 +63,38 @@ main = do
             let lazyBSEnc = toLazyByteString $ Uri.encodePathSegments [txt]
             redirect (traceShowId $ LTE.decodeUtf8 lazyBSEnc)
         post "/hoogle" $ do
-            liftIO $ putStrLn "hoogle"
-            needleP <- param "signature"
-            let needle = toStrict $ LTE.decodeUtf8 needleP
+            needleP <- param "hoogle"
+            liftIO $ print "hooglin for"
+            let needle = toStrict $ LTE.decodeUtf8 (traceShowId needleP)
             hoogleRes <- liftIO $ Hoogle.search manager needle
+            liftIO $ print "hoogleRes:"
+            liftIO $ print hoogleRes
             either
-                (\s -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, hoogle did not respond ok</p>"))
+                (\s -> html (mainHtml (Just (Hoogle (fromStrict needle))) "a -> b" "<p class=\"red\">Sorry, hoogle did not respond ok</p>"))
                 (redirect . fromStrict)
                 hoogleRes
         get "/:xpr" $ do
             p <- param "xpr"
             case Uri.decodePathSegments p of
-                [] -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, expression query param did not decode</p>")
+                [] -> html (mainHtml Nothing "" "<p class=\"red\">Sorry, expression query param did not decode</p>")
                 (x : _) -> draw x
 
 draw :: StrictText.Text -> ActionM ()
 draw txt =
-    case Parser.parse (traceShowId txt) of
-        Left _ -> html (mainHtml "a -> b" "<p class=\"red\">Sorry, expression did not parse</p>")
+    case Parser.parse txt of
+        Left _ -> html (mainHtml Nothing "" "<p class=\"red\">Sorry, expression did not parse</p>")
         Right vis -> do
             let initWidth = Visual.estimateWidth vis
                 s = Visual.renderSvg (blobble initWidth) vis
                 svg = State.evalState s Visual.initEnv
                 res = doctype <> with (svg11_ svg) container
-            html (mainHtml (Expr . fromStrict $ txt) (Content $ prettyText res))
+            html (mainHtml Nothing (Expr . fromStrict $ txt) (Content $ prettyText res))
 
 newtype Expr = Expr Text
+    deriving stock (Eq, Show)
+    deriving newtype (IsString)
+
+newtype Hoogle = Hoogle Text
     deriving stock (Eq, Show)
     deriving newtype (IsString)
 
@@ -98,8 +104,8 @@ newtype Content = Content Text
 
 type Html = Text
 
-mainHtml :: Expr -> Content -> Html
-mainHtml expr content = fold ["<!DOCTYPE html>", "<html lang=\"en\">", htmlHead, htmlBody expr content, "</html>"]
+mainHtml :: Maybe Hoogle -> Expr -> Content -> Html
+mainHtml hoogleM expr content = fold ["<!DOCTYPE html>", "<html lang=\"en\">", htmlHead, htmlBody hoogleM expr content, "</html>"]
 
 htmlHead :: Html
 htmlHead =
@@ -112,19 +118,42 @@ htmlHead =
         , "</head>"
         ]
 
-htmlBody :: Expr -> Content -> Html
-htmlBody expr (Content content) = fold ["<body>", "<h1>", "Haskell Type Visualizer", "</h1>", htmlForm expr, "<div class=\"content\">", content, "</div>", shareLink, credits, "</body>"]
+htmlBody :: Maybe Hoogle -> Expr -> Content -> Html
+htmlBody hoogleM expr (Content content) = fold ["<body>", "<h1>", "Haskell Type Visualizer", "</h1>", htmlForm hoogleM expr, "<div class=\"content\">", content, "</div>", shareLink, credits, "</body>"]
 
-htmlForm :: Expr -> Html
-htmlForm (Expr expr) =
+htmlForm :: Maybe Hoogle -> Expr -> Html
+htmlForm mh (Expr expr) =
     let strictT = toStrict expr
+        strictH = maybe "" (\(Hoogle hoogle) -> toStrict hoogle) mh
+        disableS = if StrictText.null strictT then "disabled" else ""
      in fromStrict
             [NI.text|
          <form action="/submit" method="post">
-            <label class="inputlabel" for="signature">Haskell Type Signature</label><br>
-            <input type="text" id="signature" name="signature" class="azure" size="90" autocomplete="off" value="$strictT"><br>
-            <button type="submit" class="bluebg" title="Render the visualization in the input field above">Visualize</button>
-            <button type="submit" class="greenbg" formaction="/hoogle" title="Hoogle a function name in the input field above">Hoogle</button>
+            <label class="inputlabel" for="hoogle">Search for function name</label><br />
+            <input type="text"
+                id="hoogle" name="hoogle"
+                class="azure"
+                size="30"
+                autocomplete="off"
+                placeholder="traverse"
+                value="$strictH"
+                onkeyup="if(this.value.length > 0) document.getElementById('hoogleBtn').disabled = false; else document.getElementById('hoogleBtn').disabled = true;"/><br />
+            <button
+                id="hoogleBtn" type="submit"
+                class="greenbg"
+                formaction="/hoogle"
+                title="Hoogle a function name in the input field above"
+                disabled>Hoogle</button><br />
+            <label class="inputlabel" for="signature">.. or provide a custom type signature</label><br />
+            <input type="text"
+                id="signature" name="signature"
+                class="azure"
+                size="90"
+                autocomplete="off"
+                placeholder="f (a -> b) -> f a -> f b"
+                value="$strictT"
+                onkeyup="if(this.value.length > 0) document.getElementById('submitBtn').disabled = false; else document.getElementById('submitBtn').disabled = true;" /><br />
+            <button type="submit" id="submitBtn" class="bluebg" title="Render the visualization in the input field above" $disableS>Visualize</button>
             <button type="submit" class="snowbg" formaction="/" title="Clear visualization and reset page">Clear</button>
         </form>
     |]

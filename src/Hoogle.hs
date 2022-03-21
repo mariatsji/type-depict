@@ -40,5 +40,5 @@ searchUrl t =
 testIt :: IO ()
 testIt = do
     manager <- newManager tlsManagerSettings{managerModifyRequest = \r -> pure $ r{requestHeaders = [("User-Agent", "type-depict.io/0.0.1")]}}
-    res <- search manager "bitraverse"
+    res <- search manager "traverse"
     print res

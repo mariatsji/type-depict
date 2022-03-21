@@ -1,0 +1,16 @@
+[
+    {
+        "docs": "Map each element of a structure to an action, evaluate these actions\nfrom left to right, and collect the results. For a version that\nignores the results see traverse_.\n\nExamples\n\nBasic usage:\n\nIn the first two examples we show each evaluated action mapping to the\noutput structure.\n\n\n>>> traverse Just [1,2,3,4]\nJust [1,2,3,4]\n\n\n\n>>> traverse id [Right 1, Right 2, Right 3, Right 4]\nRight [1,2,3,4]\n\n\nIn the next examples, we show that Nothing and Left\nvalues short circuit the created structure.\n\n\n>>> traverse (const Nothing) [1,2,3,4]\nNothing\n\n\n\n>>> traverse (\\x -> if odd x then Just x else Nothing)  [1,2,3,4]\nNothing\n\n\n\n>>> traverse id [Right 1, Right 2, Right 3, Right 4, Left 0]\nLeft 0\n\n",
+        "item": "traverse :: (Traversable t, Applicative f) => (a -> f b) -> t a -> f (t b)",
+        "module": {
+            "name": "Prelude",
+            "url": "https://hackage.haskell.org/package/base/docs/Prelude.html"
+        },
+        "package": {
+            "name": "base",
+            "url": "https://hackage.haskell.org/package/base"
+        },
+        "type": "",
+        "url": "https://hackage.haskell.org/package/base/docs/Prelude.html#v:traverse"
+    }
+]

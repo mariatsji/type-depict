@@ -20,11 +20,16 @@
     color: black;
 }
 .content {
-    overflow: auto;
+    overflow: scroll;
 }
 .credits {
     font-size: 16px;
     color: lightslategrey;
+}
+button:disabled,
+button[disabled]{
+  background-color: #cccccc;
+  color: #666666;
 }
 /* mobile device */
 @media only screen and (max-width:445px){
@@ -42,7 +47,6 @@
     }
     form {
         width: 100%;
-        max-height: 100px;
     }
     input {
         padding: 10px;
@@ -57,7 +61,6 @@
     svg {
         margin-top: 20px;
         max-width: 3000px;
-        max-height: 600px;
     }
     .credits {
         font-size: 13px;
@@ -83,7 +86,6 @@
     }
     form {
         width: 100%;
-        max-height: 100px;
         margin-left: 16px;
     }
     input {
@@ -100,7 +102,6 @@
         margin-top: 20px;
         margin-left: 16px;
         max-width: 3000px;
-        max-height: 600px;
     }
     .sharelink {
         margin-left: 16px;
