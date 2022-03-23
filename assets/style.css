@@ -20,7 +20,11 @@
     color: black;
 }
 .content {
-    overflow: scroll;
+    overflow-x: auto;
+    overflow-y: auto;
+    scrollbar-width: none;
+}
+
 }
 .credits {
     font-size: 16px;
