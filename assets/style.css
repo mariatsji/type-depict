@@ -51,6 +51,8 @@ button[disabled]{
     input {
         padding: 10px;
         font-size: 16px;
+        max-width: 90%;
+        overflow: scroll;
     }
     button {
         padding: 4px;
