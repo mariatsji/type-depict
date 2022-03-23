@@ -2,7 +2,7 @@
 
 A repository for visualizing Haskell type signatures
 
-That is, it can [draw a visualization of a Haskell type](https://type-depict.io)
+That is, it can [draw a visualization of a Haskell type](https://www.type-depict.io)
 
 The core idea is representing any Haskell type level signature as a combination of Connections, Embellishments, Groups and Dots
 
