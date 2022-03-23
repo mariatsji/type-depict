@@ -26,6 +26,7 @@ import System.IO (
  )
 import qualified Visual
 import Web.Scotty
+import Data.Text.Lazy.Encoding (encodeUtf8)
 
 -- heroku provides PORT
 readPort :: IO Int
@@ -73,11 +74,29 @@ main = do
                 (\s -> html (mainHtml (Just (Hoogle (fromStrict needle))) "a -> b" "<p class=\"red\">Sorry, hoogle did not respond ok</p>"))
                 (redirect . fromStrict)
                 hoogleRes
+        get "/api/:xpr" $ do
+            p <- param "xpr"
+            case Uri.decodePathSegments p of
+                [] -> mempty
+                (x : _) -> do
+                    setHeader "Content-Type" "image/svg+xml"
+                    drawSvgOnly x
         get "/:xpr" $ do
             p <- param "xpr"
             case Uri.decodePathSegments p of
                 [] -> html (mainHtml Nothing "" "<p class=\"red\">Sorry, expression query param did not decode</p>")
                 (x : _) -> draw x
+
+drawSvgOnly :: StrictText.Text -> ActionM ()
+drawSvgOnly txt =
+    case Parser.parse txt of
+        Left _ -> html "<p class=\"red\">Sorry, expression did not parse</p>"
+        Right vis -> do
+            let initWidth = Visual.estimateWidth vis
+                s = Visual.renderSvg (blobble initWidth) vis
+                svg = State.evalState s Visual.initEnv
+                res = doctype <> with (svg11_ svg) container
+            raw . encodeUtf8 $ prettyText res
 
 draw :: StrictText.Text -> ActionM ()
 draw txt =
