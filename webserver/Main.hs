@@ -58,6 +58,9 @@ main = do
         get "/favicon.ico" $ do
             setHeader "Content-Type" "image/vnd.microsoft.icon"
             file "assets/favicon.ico"
+        get "/robots.txt" $ do
+            setHeader "Content-Type" "text/plain"
+            file "assets/robots.txt"
         post "/submit" $ do
             liftIO $ putStrLn "submit"
             txt <- param "signature"
